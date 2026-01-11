@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ceza Muhakemesi Süreci - Yol Haritası</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --sorusturma: #e67e22;
+            --kovusturma: #2980b9;
+            --infaz: #27ae60;
+            --bg: #f4f7f6;
+            --text: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 10px;
+        }
+
+        .phase {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border-left: 10px solid;
+        }
+
+        /* Renklendirmeler */
+        .phase-1 { border-left-color: var(--sorusturma); }
+        .phase-2 { border-left-color: var(--kovusturma); }
+        .phase-3 { border-left-color: var(--infaz); }
+
+        .phase-header {
+            padding: 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .phase-1 .phase-header { background-color: var(--sorusturma); }
+        .phase-2 .phase-header { background-color: var(--kovusturma); }
+        .phase-3 .phase-header { background-color: var(--infaz); }
+
+        .phase-content {
+            padding: 20px;
+        }
+
+        .step {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            background: #eee;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 0.9em;
+        }
+
+        .step-text {
+            flex-grow: 1;
+        }
+
+        .step-title {
+            font-weight: bold;
+            display: block;
+            color: var(--primary);
+        }
+
+        .badge {
+            font-size: 0.8em;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.2);
+            font-weight: normal;
+        }
+
+        @media (max-width: 600px) {
+            .phase-header { flex-direction: column; align-items: flex-start; }
+            .badge { margin-top: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>⚖️ Suçun Yaşam Döngüsü</h1>
+        <p>Hukuk Sisteminde Suçun İşlenmesinden Topluma Kazandırılmaya Kadar Olan Süreç</p>
+    </header>
+
+    <div class="phase phase-1">
+        <div class="phase-header">
+            <h2>I. Soruşturma Evresi</h2>
+            <span class="badge">Cumhuriyet Savcılığının Yetkisi</span>
+        </div>
+        <div class="phase-content">
+            <p><em>Suç şüphesinin öğrenilmesiyle başlar, davanın açılıp açılmayacağına karar verilir.</em></p>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-text">
+                    <span class="step-title">Suçun İşlenmesi ve İhbar</span>
+                    Şikayet veya ihbar üzerine kolluk (polis/jandarma) durumu savcıya bildirir.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-text">
+                    <span class="step-title">Delillerin Toplanması</span>
+                    Savcı talimatıyla şüpheli ifadesi alınır, tanıklar dinlenir, olay yeri incelemesi yapılır.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-text">
+                    <span class="step-title">Koruma Tedbirleri</span>
+                    Gerekliyse gözaltı, tutuklama veya adli kontrol kararları uygulanır.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-text">
+                    <span class="step-title">Karar Aşaması</span>
+                    Yeterli delil varsa <strong>İddianame</strong> düzenlenir; yoksa <strong>KYOK</strong> (Takipsizlik) verilir.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="phase phase-2">
+        <div class="phase-header">
+            <h2>II. Kovuşturma Evresi</h2>
+            <span class="badge">Mahkemenin Yetkisi</span>
+        </div>
+        <div class="phase-content">
+            <p><em>İddianamenin kabulüyle başlar, hükmün kesinleşmesine kadar devam eder.</em></p>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-text">
+                    <span class="step-title">Duruşmalar Hazırlığı</span>
+                    Tensip zaptı hazırlanır, duruşma günü tayin edilir.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-text">
+                    <span class="step-title">Yargılama (Duruşmalar)</span>
+                    Sanık sorgusu, delil tartışması ve savcının esas hakkında mütalaası.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-text">
+                    <span class="step-title">Hüküm</span>
+                    Beraat, ceza verilmesine yer olmadığı veya mahkumiyet kararı.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-text">
+                    <span class="step-title">Kanun Yolu</span>
+                    İstinaf ve Yargıtay süreci. Karar onandığında kesinleşir.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="phase phase-3">
+        <div class="phase-header">
+            <h2>III. İnfaz Evresi</h2>
+            <span class="badge">İnfaz Savcılığının Yetkisi</span>
+        </div>
+        <div class="phase-content">
+            <p><em>Kesinleşen kararın yerine getirilmesi aşamasıdır (5275 Sayılı Kanun).</em></p>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-text">
+                    <span class="step-title">İlam ve Müddetname</span>
+                    Karar savcılığa gelir, yatılacak süre ve tahliye tarihleri hesaplanır.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-text">
+                    <span class="step-title">Cezaevine Giriş</span>
+                    Çağrı veya yakalama sonrası uygun kuruma (açık/kapalı) yerleştirme yapılır.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-text">
+                    <span class="step-title">Denetimli Serbestlik ve Koşullu Salıverilme</span>
+                    İyi hal takibi sonucu cezanın son kısmının dışarıda geçirilmesi ve tahliye.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-text">
+                    <span class="step-title">Bihakkın Tahliye</span>
+                    Cezanın tamamen dolması; tüm infaz baskısının kalkması.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+        <p>&copy; 2026 - ab116762 Tüm hakları saklıdır.</p>
+    </footer>
+</div>
+
+</body>
+</html>
