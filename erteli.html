@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hukuki Süre Hesaplayıcı (Yıl:365, Ay:30)</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f8f9fa; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); width: 100%; max-width: 450px; }
+        h2 { color: #c0392b; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #2c3e50; }
+        input { width: 100%; padding: 12px; border: 2px solid #dee2e6; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .row { display: flex; gap: 10px; }
+        button { width: 100%; padding: 15px; background-color: #2c3e50; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 15px; }
+        button:hover { background-color: #34495e; }
+        #result { margin-top: 20px; padding: 15px; border-radius: 8px; display: none; line-height: 1.6; border: 1px solid #b2ebf2; background-color: #e0f7fa; }
+        .info-box { font-size: 12px; color: #7f8c8d; margin-top: 10px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Erteli İlam Süre Hesaplama</h2>
+    
+    <div class="input-group">
+        <label>Kesinleşme Tarihi:</label>
+        <input type="date" id="startDate">
+    </div>
+
+    <label>İlamdaki Süre:</label>
+    <div class="row">
+        <div class="input-group">
+            <input type="number" id="yıl" placeholder="Yıl" min="0">
+        </div>
+        <div class="input-group">
+            <input type="number" id="ay" placeholder="Ay" min="0">
+        </div>
+        <div class="input-group">
+            <input type="number" id="gün" placeholder="Gün" min="0">
+        </div>
+    </div>
+
+    <button onclick="calculateHukuki()">Hukuki Standartla Hesapla</button>
+
+    <div id="result"></div>
+    <p class="info-box">* 1 yıl 365 gün, 1 ay 30 gün olarak hesaplanmıştır.</p>
+</div>
+
+<script>
+    function calculateHukuki() {
+        const startVal = document.getElementById('startDate').value;
+        const y = parseInt(document.getElementById('yıl').value) || 0;
+        const m = parseInt(document.getElementById('ay').value) || 0;
+        const d = parseInt(document.getElementById('gün').value) || 0;
+        const resDiv = document.getElementById('result');
+
+        if (!startVal) {
+            alert("Lütfen başlangıç tarihini giriniz.");
+            return;
+        }
+
+        // Toplam gün sayısını hukuki kurala göre hesapla
+        // 1 Yıl = 365 gün
+        // 1 Ay = 30 gün
+        const toplamGun = (y * 365) + (m * 30) + d;
+
+        let date = new Date(startVal);
+        
+        // JS Date objesine toplam günü ekle
+        date.setDate(date.getDate() + toplamGun);
+
+        const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+        const bitisTarihi = date.toLocaleDateString('tr-TR', options);
+
+        resDiv.style.display = 'block';
+        resDiv.innerHTML = `
+            <strong>Hesaplama Detayı:</strong><br>
+            Toplam Eklenen Gün: <b>${toplamGun} gün</b><br><br>
+            <strong>Bitiş Tarihi:</strong><br>
+            <span style="font-size: 18px; color: #c0392b;">${bitisTarihi}</span>
+        `;
+    }
+</script>
+
+</body>
+</html>
