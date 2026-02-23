@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux Watcher | Distro vs Paket</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #020617; color: #f1f5f9; font-family: 'Inter', system-ui, sans-serif; }
+        .glass-card { 
+            background: #0f172a; 
+            border: 1px solid #1e293b; 
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover { 
+            border-color: #38bdf8; 
+            transform: translateX(4px);
+            background: #1e293b;
+        }
+        .distro-border { border-left: 4px solid #38bdf8; }
+        .pkg-border { border-left: 4px solid #10b981; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6 border-b border-slate-800 pb-8">
+            <div>
+                <h1 class="text-4xl font-black text-white tracking-tight">LINUX<span class="text-sky-500 underline decoration-2 underline-offset-8">WATCHER</span></h1>
+                <p class="text-slate-400 mt-3 flex items-center gap-2">
+                    <span class="flex h-2 w-2 rounded-full bg-green-500"></span>
+                    DistroWatch RSS kaynağından canlı veriler
+                </p>
+            </div>
+            <button onclick="loadAll()" class="group bg-slate-800 hover:bg-sky-600 text-white px-8 py-3 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:rotate-180 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                ŞİMDİ GÜNCELLE
+            </button>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            
+            <section>
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-sky-400 flex items-center gap-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
+                        Son Çıkan Dağıtımlar
+                    </h2>
+                    <span class="text-[10px] bg-sky-500/10 text-sky-500 px-2 py-1 rounded font-mono uppercase">Top 10</span>
+                </div>
+                <div id="distro-list" class="space-y-4">
+                    <div class="animate-pulse text-slate-700 font-mono italic">Veri akışı bekleniyor...</div>
+                </div>
+            </section>
+
+            <section>
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-emerald-400 flex items-center gap-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                        Yeni Paket Sürümleri
+                    </h2>
+                    <span class="text-[10px] bg-emerald-500/10 text-emerald-500 px-2 py-1 rounded font-mono uppercase">Update Feed</span>
+                </div>
+                <div id="package-list" class="space-y-4">
+                    <div class="animate-pulse text-slate-700 font-mono italic">Paket bilgisi çekiliyor...</div>
+                </div>
+            </section>
+
+        </div>
+
+        <footer class="mt-20 border-t border-slate-900 pt-8 flex flex-col md:flex-row justify-between text-slate-600 text-[11px] font-mono tracking-widest">
+            <p>© 2026 LINUXWATCHER DASHBOARD</p>
+            <p>DATA SOURCE: DISTROWATCH RSS SERVICE</p>
+        </footer>
+    </div>
+
+    <script>
+        // RSS linklerini JSON'a çeviren proxy servisleri
+        async function fetchRSS(rssUrl, containerId, borderClass, accentColor) {
+            const container = document.getElementById(containerId);
+            // RSS2JSON, tarayıcıda en stabil çalışan servistir
+            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.status === 'ok') {
+                    container.innerHTML = '';
+                    data.items.slice(0, 10).forEach(item => {
+                        // Dağıtım/Paket isimlerini düzenle
+                        const cleanTitle = item.title
+                            .replace('Distribution Release: ', '')
+                            .replace('Latest Upstream Release: ', '');
+
+                        const card = document.createElement('div');
+                        card.className = `glass-card ${borderClass}`;
+                        card.innerHTML = `
+                            <div class="flex flex-col">
+                                <span class="font-bold text-slate-200 text-sm md:text-[15px]">${cleanTitle}</span>
+                                <span class="text-[10px] text-slate-500 mt-1 uppercase tracking-tighter">${new Date(item.pubDate).toLocaleDateString('tr-TR')}</span>
+                            </div>
+                            <a href="${item.link}" target="_blank" class="p-2 hover:bg-slate-700 rounded-lg transition text-${accentColor}-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </a>
+                        `;
+                        container.appendChild(card);
+                    });
+                }
+            } catch (err) {
+                container.innerHTML = `<div class="p-4 border border-red-900/50 text-red-500 text-xs rounded-lg italic">Veri çekme hatası! Sayfayı yenileyin.</div>`;
+            }
+        }
+
+        function loadAll() {
+            fetchRSS('https://distrowatch.com/news/dw.xml', 'distro-list', 'distro-border', 'sky');
+            fetchRSS('https://distrowatch.com/news/dwp.xml', 'package-list', 'pkg-border', 'emerald');
+        }
+
+        // İlk yükleme
+        loadAll();
+    </script>
+</body>
+</html>
+

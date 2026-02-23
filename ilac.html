@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8 Kategorili Tam İlaç Rehberi</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
+        .category-item { margin-bottom: 12px; border-radius: 10px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e2e8f0; }
+        .category-btn {
+            width: 100%; padding: 18px; border: none; background: white;
+            text-align: left; font-size: 1.05rem; font-weight: bold; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: background 0.3s;
+        }
+        .category-btn:hover { background: #f8fafc; }
+        .category-btn.active { background: #3498db; color: white; border-bottom: 1px solid rgba(0,0,0,0.1); }
+        .med-list { display: none; padding: 10px 20px; background: #fff; }
+        .med-item { padding: 15px 0; border-bottom: 1px solid #f1f5f9; }
+        .med-item:last-child { border-bottom: none; }
+        .name { color: #e67e22; font-weight: bold; font-size: 1.1rem; }
+        .active-text { color: #3498db !important; } /* Açıkken isim rengi değişimi */
+        .desc { font-size: 0.95rem; margin: 5px 0; color: #444; }
+        .info { font-size: 0.85rem; color: #666; line-height: 1.4; }
+        .info b { color: #2c3e50; }
+        .arrow { transition: transform 0.3s; font-size: 0.8rem; }
+        .active .arrow { transform: rotate(180deg); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>💊 İlaç Bilgi Bankası</h1>
+    <div id="app"></div>
+</div>
+
+<script>
+const data = {
+    "🔹 Ağrı Kesici & Romatizma (25)": [
+        {n:"Parol", g:"Hafif ağrı/ateş", d:"Günde 3-4", u:"Tok, bol suyla"}, {n:"Arveles", g:"Şiddetli ağrı", d:"Günde 2-3", u:"Aç (hızlı) veya tok"},
+        {n:"Majezik", g:"Romatizma/Boğaz", d:"Günde 2", u:"Mutlaka tok"}, {n:"Apranax", g:"Kas ağrısı", d:"12 saatte bir", u:"Tok, çiğnemeden"},
+        {n:"Voltaren", g:"Kireçlenme", d:"Günde 1", u:"Yemekle birlikte"}, {n:"Dolorex", g:"Migren/Adet", d:"Günde 2", u:"Aç karnına bol suyla"},
+        {n:"Etol Fort", g:"Ameliyat ağrısı", d:"Günde 2", u:"Tok karnına"}, {n:"Minoset Plus", g:"Baş ağrısı", d:"Günde 3", u:"Bol suyla, aç/tok"},
+        {n:"Buscopan Plus", g:"Karın spazmı", d:"Günde 3", u:"Su ile yutulur"}, {n:"Aspirin", g:"Kalp/Ağrı", d:"Günde 1", u:"Tok karnına"},
+        {n:"Dex-Forte", g:"Hızlı ağrı kesici", d:"Günde 2", u:"Yemekten 1 saat önce"}, {n:"Naprosyn", g:"Eklem ağrısı", d:"Günde 2", u:"Tok, bol suyla"},
+        {n:"Vermidon", g:"Baş ağrısı", d:"Günde 4", u:"Tok karnına"}, {n:"Geralgine-K", g:"Orta ağrı", d:"Günde 2", u:"Yemekten sonra"},
+        {n:"Cataflam", g:"Doku ağrısı", d:"Günde 3", u:"Aç karnına"}, {n:"Biofenac", g:"Eklem şişliği", d:"12 saatte bir", u:"Tok yutulur"},
+        {n:"Difenak", g:"Bel fıtığı", d:"Günde 2", u:"Yemekten hemen sonra"}, {n:"Piyeloseptyl", g:"İdrar sancısı", d:"Günde 4", u:"Yemekle/Sütle"},
+        {n:"Dexpure", g:"Akut kas ağrısı", d:"Günde 3", u:"Yemekten 30 dk önce"}, {n:"Rantudil", g:"Boyun ağrısı", d:"Günde 1", u:"Tok, çiğnemeden"},
+        {n:"Tilcotil", g:"Kronik ağrı", d:"Günde 1", u:"Tok, aynı saatte"}, {n:"Novalgin", g:"Ateş/Ağrı", d:"Günde 2", u:"Tok, bol suyla"},
+        {n:"Surgam", g:"İltihap ağrısı", d:"Günde 2", u:"Tok karnına"}, {n:"Dolarit", g:"Diş/Kemik", d:"Günde 2", u:"Yemekten sonra"},
+        {n:"Advil", g:"İltihaplı ağrı", d:"Günde 2", u:"Yemekle beraber"}
+    ],
+    "🦠 Antibiyotikler (25)": [
+        {n:"Augmentin", g:"Boğaz/Diş", d:"12 saatte bir", u:"Yemek başlangıcında"}, {n:"Zinnat", g:"Solunum yolu", d:"12 saatte bir", u:"Yemekten sonra"},
+        {n:"Klamer", g:"Akciğer/Bronşit", d:"12 saatte bir", u:"Aç/Tok fark etmez"}, {n:"Cipro", g:"İdrar/Bağırsak", d:"12 saatte bir", u:"Aç, sütle almayın"},
+        {n:"Azitro", g:"3 günlük doz", d:"Günde 1", u:"Yemekten 1 saat önce"}, {n:"Macrol", g:"Kulak/Farenjit", d:"12 saatte bir", u:"Tok karnına"},
+        {n:"Tetradox", g:"Akne/Sivilce", d:"Günde 1", u:"Bol suyla, dik oturarak"}, {n:"Aksef", g:"Cilt/Boğaz", d:"12 saatte bir", u:"Yemekten sonra"},
+        {n:"Cefaks", g:"Enfeksiyon", d:"Günde 2", u:"Tok karnına"}, {n:"Flagyl", g:"Bakteriyel", d:"Günde 3", u:"Yemekle birlikte"},
+        {n:"Largopen", g:"Bademcik", d:"Günde 3", u:"Aç veya tok"}, {n:"Rovamycine", g:"Diş eti", d:"Günde 2", u:"Aç karnına"},
+        {n:"Duocid", g:"Doku iltihabı", d:"Günde 2", u:"Tok, bol suyla"}, {n:"Bactrim", g:"İdrar yolu", d:"12 saatte bir", u:"Tok, bol suyla"},
+        {n:"Amoklavin", g:"Kulak/Akciğer", d:"12 saatte bir", u:"Yemekten hemen önce"}, {n:"Tavanic", g:"Ciddi enf.", d:"Günde 1", u:"Aç/Tok, bol suyla"},
+        {n:"Moxiflox", g:"Bronşit", d:"Günde 1", u:"Her gün aynı saatte"}, {n:"Sulcid", g:"Yara iltihabı", d:"Günde 2", u:"Tok, bol suyla"},
+        {n:"Ornisid", g:"Diş absesi", d:"Günde 2", u:"Tok yutulur"}, {n:"Biteral", g:"Amip tedavisi", d:"Günde 2", u:"Tok, bol suyla"},
+        {n:"Monurol", g:"Sistit", d:"Tek doz", u:"Gece, mesane boşken"}, {n:"Alfasilin", g:"Solunum", d:"Günde 4", u:"Yemekten 30 dk önce"},
+        {n:"Factive", g:"Zatürre", d:"Günde 1", u:"Su ile yutun"}, {n:"Croxilex", g:"Yumuşak doku", d:"Günde 2", u:"Yemekten hemen önce"},
+        {n:"Fucidin", g:"Deri (Tab)", d:"Günde 3", u:"Yemekten sonra"}
+    ],
+    "🧪 Mide ve Sindirim (25)": [
+        {n:"Lansor", g:"Mide yanması", d:"Sabah aç", u:"Kahvaltıdan 30 dk önce"}, {n:"Nexium", g:"Reflü/Gastrit", d:"Sabah aç", u:"Bütün, suyla"},
+        {n:"Gaviscon", g:"Yemek borusu", d:"Yemekten sonra", u:"Yemekten sonra ve yatarken"}, {n:"Rennie", g:"Mide ekşimesi", d:"Gerektiğinde", u:"Çiğneyerek"},
+        {n:"Pantpas", g:"Ülser", d:"Günde 1", u:"Sabah aç"}, {n:"Talcid", g:"Asit giderici", d:"Yemekten sonra", u:"Çiğneyerek"},
+        {n:"Pulcet", g:"Mide koruyucu", d:"Sabah aç", u:"Kahvaltıdan önce"}, {n:"Metpamid", g:"Bulantı", d:"Günde 3", u:"Yemekten 30 dk önce aç"},
+        {n:"Dicetel", g:"Bağırsak spazmı", d:"Günde 3", u:"Yemek ortasında suyla"}, {n:"Meteospasmyl", g:"Gaz", d:"Yemekten önce", u:"Yemekten hemen önce"},
+        {n:"Debridat", g:"Düzenleyici", d:"Günde 3", u:"Yemeklerden önce"}, {n:"Motilium", g:"Dolgunluk", d:"Günde 3", u:"Yemekten 30 dk önce aç"},
+        {n:"Antepsin", g:"Mide yarası", d:"Günde 4", u:"Yemekten 1 saat önce"}, {n:"Duphalac", g:"Kabızlık", d:"Sabah 1", u:"Kahvaltıda suyla"},
+        {n:"Bekunis", g:"Kabızlık", d:"Yatmadan", u:"Gece yatarken suyla"}, {n:"Nidazol", g:"Parazit", d:"Günde 2", u:"Tok, suyla"},
+        {n:"Famodin", g:"Mide asidi", d:"Akşam 1", u:"Yatmadan önce"}, {n:"Pankreoflat", g:"Enzim", d:"Yemekle", u:"Yemekte, çiğnemeden"},
+        {n:"Spasmomen", g:"Karın ağrısı", d:"Günde 3", u:"Yemekten 20 dk önce"}, {n:"Kreon", g:"Sindirim", d:"Yemekle", u:"Öğünlerle beraber"},
+        {n:"Emedur", g:"Kusma", d:"Günde 2", u:"Aç/Tok fark etmez"}, {n:"Librax", g:"Stres bağırsak", d:"Günde 3", u:"Yemekten önce"},
+        {n:"Loperermid", g:"İshal", d:"Gerektiğinde", u:"Bol su ile"}, {n:"Magnesia", g:"Kabızlık", d:"Günde 1", u:"Aç karnına bol su"},
+        {n:"Tribudat", g:"Hareket düz.", d:"Günde 3", u:"Aç veya tok"}
+    ],
+    "🤧 Soğuk Algınlığı (25)": [
+        {n:"Nurofen Cold", g:"Grip/Burun", d:"Günde 3", u:"Tok karnına"}, {n:"A-Ferin Forte", g:"Ateş/Halsizlik", d:"Günde 3", u:"Tok karnına"},
+        {n:"Theraflu", g:"Gribal ağrı", d:"Günde 3", u:"Tok karnına"}, {n:"Katarin", g:"Öksürük/Hapşırık", d:"Günde 3", u:"Tok karnına"},
+        {n:"Tylol Hot", g:"Sıcak içecek", d:"Günde 3", u:"Sıcak suda, tok"}, {n:"Aerius", g:"Alerji", d:"Günde 1", u:"Aç/Tok fark etmez"},
+        {n:"Zyrtec", g:"Kaşıntı", d:"Günde 1", u:"Akşamları"}, {n:"Allerset", g:"Göz sulanması", d:"Günde 1", u:"Su ile"},
+        {n:"Sudafed", g:"Burun tıkanıklığı", d:"Günde 3", u:"Yemekten sonra"}, {n:"Asist", g:"Balgam", d:"Günde 3", u:"Bol su ile"},
+        {n:"Otrivine", g:"Sprey", d:"Günde 2", u:"Burun içine"}, {n:"Perebron", g:"Öksürük", d:"Günde 3", u:"Tok (Şurup)"},
+        {n:"Deloday", g:"Sürekli hapşırık", d:"Günde 1", u:"Aynı saatte"}, {n:"Levmont", g:"Astım/Alerji", d:"Günde 1", u:"Yatmadan önce"},
+        {n:"Avil", g:"Döküntü", d:"Günde 2", u:"Tok (Uyku yapabilir)"}, {n:"Iliadin", g:"Burun açıcı", d:"Günde 2", u:"Max 5 gün"},
+        {n:"NAC 600", g:"Balgam", d:"Günde 1", u:"Suda erit, tok"}, {n:"Bricanyl", g:"Nefes darlığı", d:"Günde 3", u:"Su ile"},
+        {n:"Ventolin", g:"Fısfıs", d:"Gerektiğinde", u:"Ağızdan soluyarak"}, {n:"Strepsils", g:"Boğaz", d:"3 saatte 1", u:"Emerek"},
+        {n:"Kestine", g:"Mevsimsel", d:"Günde 1", u:"Su ile"}, {n:"Rupafin", g:"Kurdeşen", d:"Günde 1", u:"Aç/Tok"},
+        {n:"Mebucain", g:"Boğaz enf.", d:"Günde 4", u:"Emerek"}, {n:"Korsis", g:"Kuru öksürük", d:"Günde 2", u:"Tok karnına"},
+        {n:"Pastil", g:"Tahriş", d:"Gerektiğinde", u:"Ağızda eriterek"}
+    ],
+    "❤️ Kalp ve Tansiyon (25)": [
+        {n:"Coraspin", g:"Pıhtı önleme", d:"Günde 1", u:"Tok, bol suyla"}, {n:"Beloc ZOK", g:"Ritim", d:"Sabah 1", u:"Tok, bütün yutun"},
+        {n:"Dideral", g:"Çarpıntı", d:"Günde 2", u:"Su ile"}, {n:"Vasoxen", g:"Tansiyon", d:"Günde 1", u:"Aynı saatte"},
+        {n:"Co-Diovan", g:"Tansiyon", d:"Günde 1", u:"Sabah aç/tok"}, {n:"Delix", g:"Kalp koruma", d:"Günde 1", u:"Su ile"},
+        {n:"Plavix", g:"Damar sertliği", d:"Günde 1", u:"Su ile"}, {n:"Concor", g:"Nabız", d:"Günde 1", u:"Sabahları"},
+        {n:"Norvasc", g:"Kan basıncı", d:"Günde 1", u:"Su ile"}, {n:"Adalat Crono", g:"Tansiyon", d:"Günde 1", u:"Ezmeden yutun"},
+        {n:"Lasix", g:"Ödem", d:"Sabah 1", u:"Aç karnına"}, {n:"Lipitor", g:"Kolesterol", d:"Günde 1", u:"Akşam tok"},
+        {n:"Crestor", g:"Damar yağlanma", d:"Günde 1", u:"Akşamları"}, {n:"Ator", g:"Kolesterol", d:"Günde 1", u:"Her gün aynı vakit"},
+        {n:"Ezetrol", g:"Yağ emilimi", d:"Günde 1", u:"Aç veya tok"}, {n:"Digoxin", g:"Yetmezlik", d:"Günde 1", u:"Doktor saatiyle"},
+        {n:"Atacand", g:"Tansiyon", d:"Günde 1", u:"Bol suyla"}, {n:"Micardis", g:"Kalp koruma", d:"Günde 1", u:"Su ile"},
+        {n:"Karvezea", g:"Hipertansiyon", d:"Günde 1", u:"Düzenli kullanım"}, {n:"Saneloc", g:"Nabız", d:"Günde 1", u:"Sabah tok"},
+        {n:"Ecopirin", g:"Kan sulandırıcı", d:"Günde 1", u:"Tok, bol suyla"}, {n:"Coumadin", g:"Pıhtı", d:"Günde 1", u:"Diyetle uyumlu"},
+        {n:"Coveram", g:"Karma tansiyon", d:"Günde 1", u:"Sabah aç"}, {n:"Lisinopril", g:"Damar geniş.", d:"Günde 1", u:"Su ile"},
+        {n:"Aldactazide", g:"Sıvı birikimi", d:"Günde 1", u:"Kahvaltıdan sonra"}
+    ],
+    "🩸 Diyabet ve Hormon (25)": [
+        {n:"Glifor", g:"Şeker dengeleme", d:"Günde 2", u:"Yemekle beraber"}, {n:"Matofin", g:"İnsülin direnci", d:"Günde 1", u:"Akşam yemeğiyle"},
+        {n:"Euthyrox", g:"Tiroid azlığı", d:"Sabah aç", u:"Kahvaltıdan 30 dk önce"}, {n:"Levotiron", g:"Guatr", d:"Sabah aç", u:"Sadece suyla"},
+        {n:"Amaryl", g:"Şeker düşürücü", d:"Sabah 1", u:"Kahvaltıdan hemen önce"}, {n:"Diamicron", g:"Şeker kontrol", d:"Kahvaltıda", u:"Bütün yutulur"},
+        {n:"Galvus", g:"İnsülin", d:"Günde 2", u:"Aç veya tok"}, {n:"Jardiance", g:"Şeker atılımı", d:"Günde 1", u:"Aynı saatte"},
+        {n:"Forziga", g:"Glikoz kontrol", d:"Günde 1", u:"Su ile"}, {n:"Diane 35", g:"Hormon/Sivilce", d:"Günde 1", u:"Düzenli saatte"},
+        {n:"Duphaston", g:"Adet düz.", d:"Günde 2", u:"Su ile"}, {n:"Tarlusal", g:"Adet söktürücü", d:"Günde 2", u:"Tok karnına"},
+        {n:"Progestan", g:"Düşük önleme", d:"Günde 3", u:"Tok veya yatarken"}, {n:"Dostinex", g:"Hormon fazla", d:"Haftada 2", u:"Yemekle"},
+        {n:"Trajenta", g:"Şeker ilacı", d:"Günde 1", u:"Aç/Tok"}, {n:"Glucobay", g:"Karbonhidrat", d:"Günde 3", u:"İlk lokmayla çiğne"},
+        {n:"Victoza", g:"Diyabet iğne", d:"Günde 1", u:"Deri altına"}, {n:"Lantus", g:"Yavaş insülin", d:"Günde 1", u:"Akşamları"},
+        {n:"Novorapid", g:"Hızlı insülin", d:"Öğünlerde", u:"Yemekten 5 dk önce"}, {n:"Tiromel", g:"Tiroid", d:"Günde 1", u:"Aç karnına"},
+        {n:"Januvia", g:"Tip 2 Şeker", d:"Günde 1", u:"Su ile"}, {n:"Humalog", g:"Hızlı insülin", d:"Öğünlerde", u:"Yemekten önce"},
+        {n:"Tefor", g:"Hipotiroidi", d:"Günde 1", u:"Sabah aç"}, {n:"Progynova", g:"Hormon", d:"Günde 1", u:"Tok karnına"},
+        {n:"Aldactone", g:"Hormon ödem", d:"Günde 1", u:"Yemekle"}
+    ],
+    "✨ Vitamin ve Kan (25)": [
+        {n:"Benexol", g:"B12/Sinir", d:"Günde 1", u:"Tok karnına"}, {n:"Devit-3", g:"D Vitamini", d:"Haftada 1", u:"Yağlı gıdayla"},
+        {n:"Ferrum", g:"Kansızlık", d:"Günde 1", u:"Aç (Çay/Süt içme)"}, {n:"Gynoferon", g:"Demir/Kan", d:"Günde 1", u:"Aç veya yemekten 2s sonra"},
+        {n:"Supradyn", g:"Enerji", d:"Sabah 1", u:"Tok, suda erit"}, {n:"Pharmaton", g:"Zihin/Enerji", d:"Günde 1", u:"Kahvaltıdan sonra"},
+        {n:"Osteocare", g:"Kemik/Kalsiyum", d:"Günde 2", u:"Tok karnına"}, {n:"Magnorm", g:"Magnezyum", d:"Günde 1", u:"Gece suda erit"},
+        {n:"Zinko", g:"Çinko", d:"Günde 1", u:"Tok karnına"}, {n:"Folbiol", g:"Folik asit", d:"Günde 1", u:"Su ile"},
+        {n:"Bemiks", g:"B Kompleks", d:"Günde 1", u:"Tok karnına"}, {n:"Ocean Balık Yağı", g:"Omega 3", d:"Günde 1", u:"Tok karnına"},
+        {n:"Ferro Sanol", g:"Demir", d:"Günde 1", u:"Sabah aç, portakal suyuyla"}, {n:"Neurobion", g:"Sinir tamiri", d:"Günde 1", u:"Tok karnına"},
+        {n:"İmunol", g:"Bağışıklık", d:"Günde 1", u:"Tok karnına"}, {n:"Sambucol", g:"Kara mürver", d:"Günde 1", u:"Tok (Şurup)"},
+        {n:"Biotin", g:"Saç/Tırnak", d:"Günde 1", u:"Tok karnına"}, {n:"Calcium Sandoz", g:"Kemik", d:"Günde 1", u:"Suda erit"},
+        {n:"Ester-C", g:"C Vitamini", d:"Günde 1", u:"Su ile"}, {n:"Solgar VM", g:"Multivitamin", d:"Günde 1", u:"Yemekle"},
+        {n:"Coenzyme Q10", g:"Kalp/Hücre", d:"Günde 1", u:"Yağlı yemekle"}, {n:"Glucosamine", g:"Diz/Eklem", d:"Günde 2", u:"Tok karnına"},
+        {n:"Zinc-C", g:"Çinko+C", d:"Günde 1", u:"Tok karnına"}, {n:"Maltofer", g:"Demir damla", d:"Günde 1", u:"Yemekle"},
+        {n:"Veni Vidi", g:"Göz vitamini", d:"Günde 1", u:"Tok karnına"}
+    ],
+    "🧴 Krem ve Merhem (25)": [
+        {n:"Fucidin", g:"İltihap/Sivilce", d:"Günde 3", u:"Temiz cilde"}, {n:"Terramycin", g:"Yara/Yanık", d:"Günde 2", u:"Sorunlu bölgeye"},
+        {n:"Madecassol", g:"Hücre yenileme", d:"Günde 2", u:"İz ve çatlaklara"}, {n:"Bepanthol", g:"Tahriş/Pişik", d:"Gerektiğinde", u:"Masajla yedirin"},
+        {n:"Advantan", g:"Egzama", d:"Günde 1", u:"İnce tabaka"}, {n:"Travazol", g:"Mantar/Kaşıntı", d:"Günde 2", u:"Sürülür"},
+        {n:"Hametan", g:"Güneş yanığı", d:"Günde 3", u:"Yedirerek sür"}, {n:"Exoderil", g:"Ayak mantarı", d:"Günde 1", u:"Gece temiz ayağa"},
+        {n:"Contractubex", g:"Yara izi", d:"Günde 2", u:"Masaj yaparak"}, {n:"Zovirax", g:"Uçuk", d:"Günde 5", u:"4 saat arayla"},
+        {n:"Stafine", g:"İltihaplı yara", d:"Günde 2", u:"Sürün"}, {n:"Hipocort", g:"Alerji", d:"Günde 2", u:"Kısa süreli"},
+        {n:"Benzalin", g:"Akne", d:"Akşam 1", u:"Sadece sivilceye"}, {n:"M-Furo", g:"Sedef/Egzama", d:"Günde 1", u:"Sorunlu bölgeye"},
+        {n:"Silvadiazin", g:"Geniş yanık", d:"Günde 1", u:"Bolca sürün"}, {n:"Bactroban", g:"Burun içi", d:"Günde 3", u:"Kulak çubuğuyla"},
+        {n:"Vectavir", g:"Uçuk", d:"Günde 5", u:"Erken aşamada"}, {n:"Kwellada", g:"Uyuz", d:"1 kez", u:"Tüm vücut (8-12 saat)"},
+        {n:"Zalain", g:"Vücut mantarı", d:"Günde 1", u:"Gece sürün"}, {n:"Dermovate", g:"Şiddetli egzama", d:"Günde 2", u:"Doktor kontrolüyle"},
+        {n:"Fenistil", g:"Isırık", d:"Günde 3", u:"Kaşınan yere"}, {n:"Locoid", g:"Hassasiyet", d:"Günde 2", u:"İnce tabaka"},
+        {n:"Acnegun", g:"Sivilce kurutucu", d:"Günde 2", u:"Sivilce üstüne"}, {n:"Thiocilline", g:"Göz/Deri yara", d:"Günde 3", u:"Sürülür"},
+        {n:"Pruzon", g:"Kaşıntı", d:"Günde 2", u:"Temiz bölgeye"}
+    ]
+};
+
+const app = document.getElementById('app');
+
+Object.keys(data).forEach(cat => {
+    const item = document.createElement('div');
+    item.className = 'category-item';
+
+    const btn = document.createElement('button');
+    btn.className = 'category-btn';
+    btn.innerHTML = `<span>${cat}</span> <span class="arrow">▼</span>`;
+    
+    const list = document.createElement('div');
+    list.className = 'med-list';
+    
+    data[cat].forEach(med => {
+        list.innerHTML += `
+            <div class="med-item">
+                <div class="name">${med.n}</div>
+                <div class="desc"><b>Amaç:</b> ${med.g}</div>
+                <div class="info">
+                    <span><b>Dozaj:</b> ${med.d}</span> | <span><b>Kullanım:</b> ${med.u}</span>
+                </div>
+            </div>
+        `;
+    });
+
+    btn.onclick = () => {
+        const isActive = btn.classList.contains('active');
+        document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.med-list').forEach(l => l.style.display = 'none');
+        document.querySelectorAll('.name').forEach(n => n.classList.remove('active-text'));
+        
+        if (!isActive) {
+            btn.classList.add('active');
+            list.style.display = 'block';
+            list.querySelectorAll('.name').forEach(n => n.classList.add('active-text'));
+        }
+    };
+
+    item.appendChild(btn);
+    item.appendChild(list);
+    app.appendChild(item);
+});
+</script>
+
+</body>
+</html>
+
