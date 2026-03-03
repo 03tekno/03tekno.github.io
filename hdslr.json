@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Hadis Araştırma Sistemi</title>
+    <style>
+        :root { --sidebar: #1e272e; --mid: #f1f2f6; --accent: #27ae60; --text: #2f3542; --highlight: #d63031; }
+        body { margin: 0; display: flex; height: 100vh; font-family: 'Segoe UI', sans-serif; color: var(--text); overflow: hidden; }
+
+        /* Sütunlar */
+        .col { display: flex; flex-direction: column; border-right: 1px solid #d2dae2; height: 100%; }
+        #fasil-col { flex: 1; background: var(--sidebar); color: white; min-width: 220px; }
+        #konu-col { flex: 1.2; background: var(--mid); min-width: 260px; }
+        #hadis-col { flex: 3; background: white; border-right: none; }
+
+        /* Başlıklar */
+        .header { padding: 20px 15px; font-weight: bold; background: rgba(0,0,0,0.1); font-size: 0.85em; letter-spacing: 1px; color: #808e9b; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        #hadis-col .header { background: #fff; color: var(--sidebar); border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
+
+        /* Arama Kutusu */
+        .search-container { padding: 10px 20px; background: #fff; border-bottom: 1px solid #eee; }
+        .search-input { width: 100%; padding: 12px 15px; border: 2px solid #dfe6e9; border-radius: 8px; outline: none; font-size: 1em; transition: 0.3s; }
+        .search-input:focus { border-color: var(--accent); box-shadow: 0 0 8px rgba(39, 174, 96, 0.2); }
+
+        /* Listeler */
+        .list { flex: 1; overflow-y: auto; }
+        .item { padding: 15px; cursor: pointer; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 0.95em; transition: 0.2s; }
+        #fasil-col .item:hover { background: #2f3e4e; }
+        #konu-col .item:hover { background: #dfe6e9; }
+        .item.active { background: var(--accent) !important; color: white; font-weight: bold; }
+
+        /* Hadis Kartları */
+        .hadis-container { padding: 30px; overflow-y: auto; height: 100%; box-sizing: border-box; }
+        .hadis-card { background: #fff; border: 1px solid #e1e8ed; border-radius: 12px; padding: 25px; margin-bottom: 35px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: relative; }
+        
+        .hadis-no-badge { position: absolute; top: -10px; left: 20px; background: var(--sidebar); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; font-weight: bold; }
+        
+        .ravi { color: #e67e22; font-weight: bold; display: block; margin: 10px 0; font-size: 1.1em; }
+        .metin { font-size: 1.25em; line-height: 1.8; color: #2d3436; text-align: justify; }
+        .kaynak { display: block; margin-top: 15px; font-size: 0.85em; color: #95a5a6; font-style: italic; }
+        
+        mark { background: var(--highlight); color: white; padding: 0 2px; border-radius: 3px; }
+
+        .serh-box { background: #fdfaf0; border-left: 5px solid #f1c40f; padding: 20px; margin-top: 25px; border-radius: 4px; }
+        .serh-title { font-weight: bold; color: #936300; display: block; margin-bottom: 10px; font-size: 0.9em; }
+        .serh-content { font-size: 1.05em; line-height: 1.7; white-space: pre-wrap; }
+
+        #loading { position: fixed; inset: 0; background: white; display: flex; align-items: center; justify-content: center; z-index: 1000; font-size: 1.5em; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="loading">📚 Veritabanı Yükleniyor...</div>
+
+<div class="col" id="fasil-col">
+    <div class="header">FASILLAR</div>
+    <div class="list" id="fasil-list"></div>
+</div>
+
+<div class="col" id="konu-col">
+    <div class="header">KONULAR</div>
+    <div class="list" id="konu-list"></div>
+</div>
+
+<div class="col" id="hadis-col">
+    <div class="header">HADİS ARAŞTIRMA MERKEZİ</div>
+    <div class="search-container">
+        <input type="text" id="mainSearch" class="search-input" placeholder="Hadislerde ara veya Hadis No gir (Örn: 2111)..." onkeyup="kapsamliAra()">
+    </div>
+    <div class="hadis-container" id="hadis-display"></div>
+</div>
+
+<script>
+    let dbHadis = [];
+    let dbSerh = {};
+    let seciliFasil = "";
+    let seciliKonu = "";
+
+    async function verileriGetir() {
+        try {
+            const [hRes, sRes] = await Promise.all([fetch('hdslr.json'), fetch('serh.json')]);
+            dbHadis = await hRes.json();
+            const serhler = await sRes.json();
+            serhler.forEach(s => dbSerh[s._id] = s.serh);
+            document.getElementById('loading').style.display = 'none';
+            fasilDoldur();
+            
+            // İLK AÇILIŞ OTOMATİĞİ: İlk faslı ve onun ilk konusunu seç
+            if (dbHadis.length > 0) {
+                const ilkFasilElementi = document.querySelector('#fasil-list .item');
+                if (ilkFasilElementi) {
+                    ilkFasilElementi.click(); // İlk fasla tıkla
+                    const ilkKonuElementi = document.querySelector('#konu-list .item');
+                    if (ilkKonuElementi) {
+                        ilkKonuElementi.click(); // İlk konuya tıkla
+                    }
+                }
+            }
+        } catch (e) {
+            document.getElementById('loading').innerHTML = "Dosyalar bulunamadı! JSON ve HTML aynı klasörde olmalı.";
+        }
+    }
+
+    function fasilDoldur() {
+        const fasillar = [];
+        const unique = new Set();
+        dbHadis.forEach(h => { if(!unique.has(h.fasil)) { unique.add(h.fasil); fasillar.push(h.fasil); } });
+        
+        const list = document.getElementById('fasil-list');
+        fasillar.forEach(f => {
+            const div = document.createElement('div');
+            div.className = 'item';
+            div.innerText = f;
+            div.onclick = () => konuDoldur(f, div);
+            list.appendChild(div);
+        });
+    }
+
+    function konuDoldur(fasil, el) {
+        seciliFasil = fasil;
+        document.querySelectorAll('#fasil-list .item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+        
+        const konular = [];
+        const unique = new Set();
+        dbHadis.filter(h => h.fasil === fasil).forEach(h => { if(!unique.has(h.konu)) { unique.add(h.konu); konular.push(h.konu); } });
+
+        const list = document.getElementById('konu-list');
+        list.innerHTML = "";
+        konular.forEach(k => {
+            const div = document.createElement('div');
+            div.className = 'item';
+            div.innerText = k;
+            div.onclick = () => { seciliKonu = k; hadisleriYazdir(dbHadis.filter(h => h.fasil === seciliFasil && h.konu === k), div); };
+            list.appendChild(div);
+        });
+    }
+
+    function hadisleriYazdir(liste, el, anahtar = "") {
+        if(el) {
+            document.querySelectorAll('#konu-list .item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+        }
+        
+        const display = document.getElementById('hadis-display');
+        display.innerHTML = "";
+
+        liste.forEach(h => {
+            const sID = (h.serh1 && h.serh1 !== "0") ? h.serh1 : h._id;
+            const serh = dbSerh[sID];
+            
+            let metin = h.hadis;
+            if(anahtar.length > 1) {
+                const reg = new RegExp(`(${anahtar})`, 'gi');
+                metin = metin.replace(reg, '<mark>$1</mark>');
+            }
+
+            const card = document.createElement('div');
+            card.className = 'hadis-card';
+            card.innerHTML = `
+                <div class="hadis-no-badge">HADİS NO: ${h._id}</div>
+                <span class="ravi">Ravi: ${h.ravi}</span>
+                <div class="metin">${metin}</div>
+                <div class="kaynak">Kaynak: ${h.kaynak}</div>
+                ${serh ? `<div class="serh-box"><span class="serh-title">ŞERH VE AÇIKLAMA</span><div class="serh-content">${serh}</div></div>` : ''}
+            `;
+            display.appendChild(card);
+        });
+        display.scrollTop = 0;
+    }
+
+    function kapsamliAra() {
+        const q = document.getElementById('mainSearch').value.toLocaleLowerCase('tr').trim();
+        if(q.length < 2) {
+            if(seciliFasil && seciliKonu) {
+                hadisleriYazdir(dbHadis.filter(h => h.fasil === seciliFasil && h.konu === seciliKonu));
+            }
+            return;
+        }
+        const sonuclar = dbHadis.filter(h => h._id.toString() === q || h.hadis.toLocaleLowerCase('tr').includes(q)).slice(0, 100);
+        hadisleriYazdir(sonuclar, null, q);
+    }
+
+    verileriGetir();
+</script>
+
+</body>
+</html>
