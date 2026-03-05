@@ -177,7 +177,7 @@
             }
             return;
         }
-        const sonuclar = dbHadis.filter(h => h._id.toString() === q || h.hadis.toLocaleLowerCase('tr').includes(q)).slice(0, 100);
+        const sonuclar = dbHadis.filter(h => h._id.toString() === q || h.hadis.toLocaleLowerCase('tr').includes(q)).slice(0, 500);
         hadisleriYazdir(sonuclar, null, q);
     }
 
