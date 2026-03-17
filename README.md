@@ -1,3 +1,14 @@
 # Uygulama taslaklarım
 
-MobilTurka tarafından oluşturulmuş HTML uygulama örnekleri içerir.
+MobilTurka tarafından oluşturulmuş HTML uygulama taslakları içerir.
+
+Örnek uygulamalar:
+
+İman İlmihali:
+
+https://03tekno.github.io/iman-ilmihali/index.html
+
+Hadis Araştırma Merkezi:
+
+https://03tekno.github.io/hadis-akademi/index.html
+
