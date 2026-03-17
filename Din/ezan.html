@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ezan Vakti</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ana-renk: #00d1b2;
+            --arka-plan: #0a0a0a;
+            --kart-bg: rgba(255, 255, 255, 0.05);
+            --yazi: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--arka-plan);
+            color: var(--yazi);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            overflow: hidden; /* Kaydırmayı engeller */
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            justify-content: space-between; /* İçeriği ekrana yayar */
+        }
+
+        .ust-bilgi {
+            text-align: center;
+            padding-top: 10px;
+        }
+
+        .tarih { font-size: 0.85rem; opacity: 0.6; margin-top: 4px; }
+
+        /* Sayaç Alanı - Daha Kompakt */
+        .sayac-alani {
+            background: linear-gradient(145deg, #1e1e2e, #11111a);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .vakit-etiket { font-size: 0.8rem; text-transform: uppercase; color: var(--ana-renk); letter-spacing: 1px; }
+        .kalan-zaman { font-size: 3.2rem; font-weight: 700; margin: 5px 0; }
+
+        /* Vakitler - Daha İnce Satırlar */
+        .vakit-liste {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .vakit-satir {
+            background: var(--kart-bg);
+            padding: 12px 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .vakit-satir.aktif {
+            background: var(--ana-renk);
+            color: #000;
+            font-weight: 700;
+            box-shadow: 0 0 15px rgba(0, 209, 178, 0.4);
+        }
+
+        .vakit-saat { font-variant-numeric: tabular-nums; }
+
+        /* Yükleme */
+        #loading {
+            position: fixed;
+            inset: 0;
+            background: var(--arka-plan);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 99;
+        }
+
+        .dot-loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--kart-bg);
+            border-top-color: var(--ana-renk);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div id="loading">
+    <div class="dot-loader"></div>
+    <p style="margin-top:15px; font-size:0.9rem">Konum Alınıyor...</p>
+</div>
+
+<div class="container">
+    <div class="ust-bilgi">
+        <h2 id="sehir">Namaz Vakitleri</h2>
+        <p id="tarih-metin" class="tarih">-- -- ----</p>
+    </div>
+
+    <div class="sayac-alani">
+        <p id="hedef-ad" class="vakit-etiket">Yükleniyor</p>
+        <h1 id="timer" class="kalan-zaman">00:00:00</h1>
+        <p id="hedef-saat" style="font-size: 0.85rem; opacity:0.7">--:--</p>
+    </div>
+
+    <div class="vakit-liste" id="vakit-container">
+        </div>
+
+    <div style="text-align: center; padding-bottom: 5px;">
+        <p style="font-size: 0.7rem; opacity: 0.4;">Diyanet İşleri Başkanlığı ile uyumludur</p>
+    </div>
+</div>
+
+<script>
+    const isimler = { Fajr: "İmsak", Sunrise: "Güneş", Dhuhr: "Öğle", Asr: "İkindi", Maghrib: "Akşam", Isha: "Yatsı" };
+    const aylar = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(baslat, () => alert("Konum izni veriniz."));
+    }
+
+    async function baslat(pos) {
+        const { latitude, longitude } = pos.coords;
+        const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=13`);
+        const data = await res.json();
+        const timings = data.data.timings;
+
+        const d = new Date();
+        document.getElementById('tarih-metin').innerText = `${d.getDate()} ${aylar[d.getMonth()]} ${d.getFullYear()}`;
+        
+        arayuzOlustur(timings);
+        donguBaslat(timings);
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    function arayuzOlustur(vakitler) {
+        const container = document.getElementById('vakit-container');
+        container.innerHTML = '';
+        ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"].forEach(k => {
+            container.innerHTML += `
+                <div class="vakit-satir" id="row-${k}">
+                    <span>${isimler[k]}</span>
+                    <span class="vakit-saat">${vakitler[k]}</span>
+                </div>
+            `;
+        });
+    }
+
+    function donguBaslat(vakitler) {
+        const sira = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
+        
+        setInterval(() => {
+            const simdi = new Date();
+            let hedef = null;
+            let hKey = "";
+
+            for (let k of sira) {
+                const [h, m] = vakitler[k].split(':');
+                const v = new Date(); v.setHours(h, m, 0);
+                if (v > simdi) { hedef = v; hKey = k; break; }
+            }
+
+            if (!hedef) {
+                const [h, m] = vakitler["Fajr"].split(':');
+                hedef = new Date(); hedef.setDate(hedef.getDate() + 1); hedef.setHours(h, m, 0);
+                hKey = "Fajr";
+            }
+
+            // Geri Sayım
+            const fark = hedef - simdi;
+            const sa = Math.floor(fark / 3600000);
+            const dk = Math.floor((fark % 3600000) / 60000);
+            const sn = Math.floor((fark % 60000) / 1000);
+
+            document.getElementById('timer').innerText = `${String(sa).padStart(2,'0')}:${String(dk).padStart(2,'0')}:${String(sn).padStart(2,'0')}`;
+            document.getElementById('hedef-ad').innerText = `${isimler[hKey]} Vaktine Kalan`;
+            document.getElementById('hedef-saat').innerText = `Vakit Saati: ${vakitler[hKey]}`;
+
+            // Aktif Vurgu
+            const idx = sira.indexOf(hKey);
+            const aktifKey = sira[idx === 0 ? 5 : idx - 1];
+            document.querySelectorAll('.vakit-satir').forEach(r => r.classList.remove('aktif'));
+            document.getElementById(`row-${aktifKey}`).classList.add('aktif');
+        }, 1000);
+    }
+</script>
+</body>
+</html>
