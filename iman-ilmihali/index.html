@@ -37,6 +37,37 @@
             background: #eee;
         }
 
+        /* --- MOBİL ÇEVİRİ DÜZELTMESİ --- */
+        /* Google'ın oluşturduğu tablo yapısını dikey listeye zorlar */
+        iframe.goog-te-menu-frame {
+            max-width: 100% !important;
+            left: 0 !important;
+            top: 0 !important;
+        }
+
+        .goog-te-menu2 {
+            max-width: 100% !important;
+            width: 100% !important;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            box-sizing: border-box !important;
+        }
+
+        .goog-te-menu2 table, 
+        .goog-te-menu2 tr, 
+        .goog-te-menu2 td {
+            display: block !important;
+            width: 100% !important;
+        }
+
+        .goog-te-menu2 td div {
+            padding: 10px !important;
+            border-bottom: 1px solid #ddd !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        /* ------------------------------- */
+
         .grid { 
             display: grid; 
             grid-template-columns: repeat(2, 1fr); 
@@ -60,7 +91,6 @@
         .kart i { font-size: 24px; color: var(--vurgu); margin-bottom: 8px; display: block; }
         .kart span { font-size: 14px; font-weight: 600; color: var(--ana); }
 
-        /* Okuyucu Paneli */
         #okuyucu { 
             display: none; 
             position: fixed; 
@@ -93,7 +123,6 @@
             text-align: justify;
         }
 
-        /* Alt Navigasyon */
         .alt-nav {
             background: var(--ana);
             padding: 15px;
@@ -141,7 +170,9 @@
 
 <script type="text/javascript">
 function googleTranslateElementInit() {
-  new google.translate.TranslateElement({pageLanguage: 'tr', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+  new google.translate.TranslateElement({
+      pageLanguage: 'tr'
+  }, 'google_translate_element');
 }
 </script>
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
@@ -153,7 +184,7 @@ function googleTranslateElementInit() {
         "10-İman ve inkar bakımından insanlar", "11-İmanın mertebeleri", "12-İmanın insan için önemi", "13-İnsanlar niçin dünyaya gelmiştir", "14-Allaha iman", 
         "15-Allahı görmek ve mahiyetini kavramak", "16-Allah sevgisi ve korkusu", "17-Allahın sıfatları", "18-Allahın varlığına dair deliller", "19-Görmediğime inanmam meselesi", 
         "20-Allahın birliği ve tevhid delilleri", "21-Şirk", "22-Esmaül Hüsna", "23-İsm-i Azam", "24-Meleklere iman", 
-        "25-Meleklerin vazifeleri", "26-Cin ve şeytanlar", "27-Cin ve şeytanların insana etkisi", "28-Kitaplara iman", "29-Kuran-ı Kerim ve mucizeleri",
+        "25-Meleklere vazifeleri", "26-Cin ve şeytanlar", "27-Cin ve şeytanların insana etkisi", "28-Kitaplara iman", "29-Kuran-ı Kerim ve mucizeleri",
         "30-Kuran neden arapça", "31-Kuran yeterli mi", "32-Peygamberlere iman", "33-Vahiy nedir ve neden ayrı ayrı peygamberler geldi", "34-Mucize ve Peygamber mucizeleri",
         "35-Hz Muhammed ve evrenselliği", "36-Ahiret gününe iman", "37-Cennet Cehennem ve Kevser", "38-Kaza ve Kadere iman", "39-Hayır ve Şerler", "40-Mezhepler"
     ];
@@ -163,7 +194,6 @@ function googleTranslateElementInit() {
     dosyalar.forEach(dosyaAdi => {
         const kart = document.createElement('div');
         kart.className = 'kart';
-        // Liste görünümü için kitap ikonu ekledim
         kart.innerHTML = `<i class="fa-solid fa-book-open"></i><span>${dosyaAdi}</span>`;
         
         kart.onclick = () => {
@@ -181,7 +211,6 @@ function googleTranslateElementInit() {
                 })
                 .then(metin => {
                     icerikDiv.innerText = metin;
-                    // Sayfa başına kaydır
                     icerikDiv.scrollTop = 0;
                 })
                 .catch(() => {
