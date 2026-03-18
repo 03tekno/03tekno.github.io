@@ -12,6 +12,8 @@
             --bg: #f4ecd8; /* Sepya Arkaplan */
             --kart-bg: #fdfaf1;
             --yazi: #2c241e;
+            --pozitif: #27ae60;
+            --negatif: #e74c3c;
         }
         
         body { 
@@ -66,7 +68,7 @@
         .kart i { font-size: 24px; color: var(--vurgu); margin-bottom: 8px; display: block; }
         .kart span { font-size: 14px; font-weight: 600; color: var(--ana); }
 
-        /* OKUYUCU PANELİ VE KAYDIRMA ÇUBUĞU GİZLEME */
+        /* OKUYUCU PANELİ */
         #okuyucu { 
             display: none; 
             position: fixed; 
@@ -79,12 +81,20 @@
             z-index: 1000; 
         }
 
+        .ust-bar { 
+            background: var(--ana); 
+            color: #f4ecd8; 
+            padding: 15px; 
+            text-align: center;
+            font-weight: bold;
+        }
+
         #icerik { 
             flex: 1; 
             padding: 30px 20px; 
-            overflow-y: scroll; /* Kaydırma çalışsın */
-            scrollbar-width: none; /* Firefox için çubuğu gizle */
-            -ms-overflow-style: none; /* IE/Edge için çubuğu gizle */
+            overflow-y: scroll; 
+            scrollbar-width: none; 
+            -ms-overflow-style: none; 
             white-space: pre-wrap; 
             font-size: 20px; 
             line-height: 1.8; 
@@ -93,55 +103,38 @@
             text-align: justify;
         }
 
-        /* Chrome/Safari için çubuğu gizle */
         #icerik::-webkit-scrollbar { display: none; }
 
-        .ust-bar { 
-            background: var(--ana); 
-            color: #f4ecd8; 
-            padding: 15px; 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-        }
-
-        /* OKU BUTONU STİLİ */
-        .btn-oku {
-            background: #27ae60;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .btn-oku.active { background: #e74c3c; }
-
+        /* ALT NAVİGASYON VE BUTONLAR */
         .alt-nav {
             background: var(--ana);
             padding: 15px;
             display: flex;
             justify-content: center;
+            gap: 10px;
             border-top: 1px solid rgba(255,255,255,0.1);
         }
 
-        .buton-geri {
-            background: var(--vurgu);
-            color: white;
+        .btn-alt {
             border: none;
-            padding: 12px 40px;
+            padding: 12px 20px;
             border-radius: 25px;
-            font-size: 16px;
+            font-size: 14px;
+            font-weight: bold;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            color: white;
+            transition: opacity 0.2s;
         }
+
+        .btn-alt:active { opacity: 0.8; }
+
+        .btn-geri { background: var(--vurgu); }
+        .btn-oku { background: var(--pozitif); }
+        .btn-oku.active { background: var(--negatif); }
+
     </style>
 </head>
 <body>
@@ -155,16 +148,17 @@
 <div id="okuyucu">
     <div class="ust-bar">
         <span id="baslik"></span>
-        <button id="btnSes" class="btn-oku" onclick="toggleSes()">
-            <i class="fa-solid fa-volume-high"></i> <span id="btnMetin">Sesli Oku</span>
-        </button>
     </div>
     
     <div id="icerik">İçerik yükleniyor...</div>
 
     <div class="alt-nav">
-        <button class="buton-geri" onclick="kapatOkuyucu()">
-            <i class="fa-solid fa-house"></i> Ana Menüye Dön
+        <button class="btn-alt btn-oku" id="btnSes" onclick="toggleSes()">
+            <i class="fa-solid fa-volume-high"></i> <span id="btnMetin">Oku</span>
+        </button>
+        
+        <button class="btn-alt btn-geri" onclick="kapatOkuyucu()">
+            <i class="fa-solid fa-house"></i> Ana Menü
         </button>
     </div>
 </div>
@@ -219,18 +213,13 @@ function googleTranslateElementInit() {
     function toggleSes() {
         if (synth.speaking) {
             synth.cancel();
-            document.getElementById('btnMetin').innerText = "Sesli Oku";
-            document.getElementById('btnSes').classList.remove('active');
+            resetSesButonu();
         } else {
             const metin = document.getElementById('icerik').innerText;
             utterance = new SpeechSynthesisUtterance(metin);
             utterance.lang = 'tr-TR';
-            utterance.rate = 1.0;
             
-            utterance.onend = () => {
-                document.getElementById('btnMetin').innerText = "Sesli Oku";
-                document.getElementById('btnSes').classList.remove('active');
-            };
+            utterance.onend = () => { resetSesButonu(); };
 
             synth.speak(utterance);
             document.getElementById('btnMetin').innerText = "Durdur";
@@ -238,11 +227,15 @@ function googleTranslateElementInit() {
         }
     }
 
-    function kapatOkuyucu() {
-        synth.cancel(); // Menüye dönerken sesi kapat
-        document.getElementById('okuyucu').style.display = 'none';
-        document.getElementById('btnMetin').innerText = "Sesli Oku";
+    function resetSesButonu() {
+        document.getElementById('btnMetin').innerText = "Oku";
         document.getElementById('btnSes').classList.remove('active');
+    }
+
+    function kapatOkuyucu() {
+        synth.cancel();
+        document.getElementById('okuyucu').style.display = 'none';
+        resetSesButonu();
     }
 </script>
 
