@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İman İlmihali - Mobilturka</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { 
+            --ana: #4a3728; /* Koyu Kahve */
+            --vurgu: #8b5e3c; 
+            --bg: #f4ecd8; /* Sepya Arkaplan */
+            --kart-bg: #fdfaf1;
+            --yazi: #2c241e;
+        }
+        
+        body { 
+            font-family: 'Georgia', serif; 
+            background: var(--bg); 
+            margin: 0; 
+            color: var(--yazi);
+            overflow-x: hidden;
+        }
+
+        header { 
+            background: var(--ana); 
+            color: #f4ecd8; 
+            padding: 20px; 
+            text-align: center; 
+            font-weight: bold; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        #google_translate_element {
+            text-align: center;
+            padding: 10px;
+            background: #eee;
+        }
+
+        /* ÇEVİRİ MOBİL DÜZELTMESİ */
+        iframe.goog-te-menu-frame { max-width: 100% !important; left: 0 !important; top: 0 !important; }
+        .goog-te-menu2 { max-width: 100% !important; width: 100% !important; box-sizing: border-box !important; }
+        .goog-te-menu2 table, .goog-te-menu2 tr, .goog-te-menu2 td { display: block !important; width: 100% !important; }
+        .goog-te-menu2 td div { padding: 10px !important; border-bottom: 1px solid #ddd !important; width: 100% !important; box-sizing: border-box !important; }
+
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 15px; 
+            padding: 20px; 
+            padding-bottom: 100px; 
+        }
+
+        .kart { 
+            background: var(--kart-bg); 
+            border-radius: 8px; 
+            padding: 20px; 
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08); 
+            cursor: pointer; 
+            border: 1px solid #dcd3bc;
+            transition: transform 0.2s;
+        }
+
+        .kart:active { transform: scale(0.95); }
+        .kart i { font-size: 24px; color: var(--vurgu); margin-bottom: 8px; display: block; }
+        .kart span { font-size: 14px; font-weight: 600; color: var(--ana); }
+
+        /* OKUYUCU PANELİ VE KAYDIRMA ÇUBUĞU GİZLEME */
+        #okuyucu { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: var(--bg); 
+            flex-direction: column; 
+            z-index: 1000; 
+        }
+
+        #icerik { 
+            flex: 1; 
+            padding: 30px 20px; 
+            overflow-y: scroll; /* Kaydırma çalışsın */
+            scrollbar-width: none; /* Firefox için çubuğu gizle */
+            -ms-overflow-style: none; /* IE/Edge için çubuğu gizle */
+            white-space: pre-wrap; 
+            font-size: 20px; 
+            line-height: 1.8; 
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: justify;
+        }
+
+        /* Chrome/Safari için çubuğu gizle */
+        #icerik::-webkit-scrollbar { display: none; }
+
+        .ust-bar { 
+            background: var(--ana); 
+            color: #f4ecd8; 
+            padding: 15px; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+
+        /* OKU BUTONU STİLİ */
+        .btn-oku {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-oku.active { background: #e74c3c; }
+
+        .alt-nav {
+            background: var(--ana);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .buton-geri {
+            background: var(--vurgu);
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<header>İMAN İLMİHALİ</header>
+
+<div id="google_translate_element"></div>
+
+<div class="grid" id="menu"></div>
+
+<div id="okuyucu">
+    <div class="ust-bar">
+        <span id="baslik"></span>
+        <button id="btnSes" class="btn-oku" onclick="toggleSes()">
+            <i class="fa-solid fa-volume-high"></i> <span id="btnMetin">Sesli Oku</span>
+        </button>
+    </div>
+    
+    <div id="icerik">İçerik yükleniyor...</div>
+
+    <div class="alt-nav">
+        <button class="buton-geri" onclick="kapatOkuyucu()">
+            <i class="fa-solid fa-house"></i> Ana Menüye Dön
+        </button>
+    </div>
+</div>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({pageLanguage: 'tr'}, 'google_translate_element');
+}
+</script>
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<script>
+    const dosyalar = [
+        "00-Önsöz", "01-Din nedir", "02-İnsan hayatında dinin yeri", "03-Dinlerin sınıflandırılması", "04-İnsanlığın ilk dini", 
+        "05-Batıl dinler ve Son din", "06-İslam dini", "07-İslam dininin temel özellikleri", "08-İman nedir", "09-Amentü", 
+        "10-İman ve inkar bakımından insanlar", "11-İmanın mertebeleri", "12-İmanın insan için önemi", "13-İnsanlar niçin dünyaya gelmiştir", "14-Allaha iman", 
+        "15-Allahı görmek ve mahiyetini kavramak", "16-Allah sevgisi ve korkusu", "17-Allahın sıfatları", "18-Allahın varlığına dair deliller", "19-Görmediğime inanmam meselesi", 
+        "20-Allahın birliği ve tevhid delilleri", "21-Şirk", "22-Esmaül Hüsna", "23-İsm-i Azam", "24-Meleklere iman", 
+        "25-Meleklerin vazifeleri", "26-Cin ve şeytanlar", "27-Cin ve şeytanların insana etkisi", "28-Kitaplara iman", "29-Kuran-ı Kerim ve mucizeleri",
+        "30-Kuran neden arapça", "31-Kuran yeterli mi", "32-Peygamberlere iman", "33-Vahiy nedir ve neden ayrı ayrı peygamberler geldi", "34-Mucize ve Peygamber mucizeleri",
+        "35-Hz Muhammed ve evrenselliği", "36-Ahiret gününe iman", "37-Cennet Cehennem ve Kevser", "38-Kaza ve Kadere iman", "39-Hayır ve Şerler", "40-Mezhepler"
+    ];
+
+    const menu = document.getElementById('menu');
+    let synth = window.speechSynthesis;
+    let utterance = null;
+
+    dosyalar.forEach(dosyaAdi => {
+        const kart = document.createElement('div');
+        kart.className = 'kart';
+        kart.innerHTML = `<i class="fa-solid fa-book-open"></i><span>${dosyaAdi}</span>`;
+        
+        kart.onclick = () => {
+            const okuyucu = document.getElementById('okuyucu');
+            const icerikDiv = document.getElementById('icerik');
+            
+            document.getElementById('baslik').innerText = dosyaAdi;
+            icerikDiv.innerText = "Yükleniyor...";
+            okuyucu.style.display = 'flex';
+            
+            fetch(`${dosyaAdi}.txt`)
+                .then(res => { if(!res.ok) throw new Error(); return res.text(); })
+                .then(metin => {
+                    icerikDiv.innerText = metin;
+                    icerikDiv.scrollTop = 0;
+                })
+                .catch(() => { icerikDiv.innerText = "Hata: Dosya bulunamadı."; });
+        };
+        menu.appendChild(kart);
+    });
+
+    function toggleSes() {
+        if (synth.speaking) {
+            synth.cancel();
+            document.getElementById('btnMetin').innerText = "Sesli Oku";
+            document.getElementById('btnSes').classList.remove('active');
+        } else {
+            const metin = document.getElementById('icerik').innerText;
+            utterance = new SpeechSynthesisUtterance(metin);
+            utterance.lang = 'tr-TR';
+            utterance.rate = 1.0;
+            
+            utterance.onend = () => {
+                document.getElementById('btnMetin').innerText = "Sesli Oku";
+                document.getElementById('btnSes').classList.remove('active');
+            };
+
+            synth.speak(utterance);
+            document.getElementById('btnMetin').innerText = "Durdur";
+            document.getElementById('btnSes').classList.add('active');
+        }
+    }
+
+    function kapatOkuyucu() {
+        synth.cancel(); // Menüye dönerken sesi kapat
+        document.getElementById('okuyucu').style.display = 'none';
+        document.getElementById('btnMetin').innerText = "Sesli Oku";
+        document.getElementById('btnSes').classList.remove('active');
+    }
+</script>
+
+</body>
+</html>
