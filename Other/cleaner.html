@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pardus Sistem Temizleyici</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        :root {
+            --primary: #1e293b;
+            --accent: #3b82f6;
+            --low: #22c55e;
+            --medium: #f59e0b;
+            --high: #ef4444;
+            --bg: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            color: #1e293b;
+        }
+
+        .header {
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto 40px;
+            padding: 30px;
+            background: var(--primary);
+            color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-top: 5px solid #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card.risk-low { border-top-color: var(--low); }
+        .card.risk-medium { border-top-color: var(--medium); }
+        .card.risk-high { border-top-color: var(--high); }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .risk-tag {
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
+        .tag-low { background: #dcfce7; color: #166534; }
+        .tag-medium { background: #fef3c7; color: #92400e; }
+        .tag-high { background: #fee2e2; color: #991b1b; }
+
+        .card h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #64748b;
+            flex-grow: 1;
+        }
+
+        .path-container {
+            background: #f1f5f9;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            word-break: break-all;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-action:hover {
+            background: var(--accent);
+        }
+
+        .risk-high .btn-action {
+            background: #475569;
+        }
+
+        .risk-high .btn-action:hover {
+            background: var(--high);
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1><i class="fa-solid fa-shield-halved"></i> Pardus Sistem Temizleyici</h1>
+    <p>Pardus 50 Kritik Sistem Temizliği</p>
+    <div class="stats" id="stats-area">
+        </div>
+</div>
+
+<div class="grid" id="main-grid">
+    </div>
+
+<script>
+    // p.json dosyasının içeriği
+    const database = {
+        "rules": [
+            { "id": 1, "name": "APT Arşiv Klasörü", "path": "/var/cache/apt/archives/*.deb", "desc": "İndirilmiş tüm paket yükleme dosyalarını siler.", "risk": "low" },
+            { "id": 2, "name": "Kısmi Paket İndirmeleri", "path": "/var/cache/apt/archives/partial/*", "desc": "Yarıda kalmış paket indirmelerini temizler.", "risk": "low" },
+            { "id": 3, "name": "Eski Çekirdek (Kernel) İmajları", "path": "/boot/vmlinuz-*.old-dkms", "desc": "Kullanılmayan eski sistem çekirdeklerini temizler.", "risk": "high" },
+            { "id": 4, "name": "Sistem Günlük Arşivleri", "path": "/var/log/*.gz", "desc": "Sıkıştırılmış eski sistem kayıtlarını siler.", "risk": "low" },
+            { "id": 5, "name": "Journald Veri Sınırı", "path": "command:journalctl --vacuum-time=3d", "desc": "Sistem günlüklerini son 3 güne indirger.", "risk": "medium" },
+            { "id": 6, "name": "Geçici Sistem Dosyaları", "path": "/tmp/*", "desc": "Yeniden başlatmada silinmeyen /tmp kalıntıları.", "risk": "low" },
+            { "id": 7, "name": "Değişken Geçici Veriler", "path": "/var/tmp/*", "desc": "Oturumlar arası korunan sistem geçici dosyaları.", "risk": "medium" },
+            { "id": 8, "name": "Kırık Bağımlılık Temizliği", "path": "command:apt-get autoremove --purge", "desc": "Gereksizleşmiş sistem kütüphanelerini kaldırır.", "risk": "medium" },
+            { "id": 9, "name": "Yerel Depo İndeksi", "path": "/var/lib/apt/lists/*", "desc": "Paket listelerini sıfırlar (Update gerektirir).", "risk": "medium" },
+            { "id": 10, "name": "Sistem Hata Dökümleri", "path": "/var/crash/*", "desc": "Sistem çökmelerinde oluşan dump dosyaları.", "risk": "low" },
+            { "id": 11, "name": "Çekirdek Modül Önbelleği", "path": "/var/lib/dkms/*/*/build/*", "desc": "Derlenmiş sürücülerin inşa kalıntıları.", "risk": "medium" },
+            { "id": 12, "name": "Boş Sistem Klasörleri", "path": "command:find /var -type d -empty", "desc": "Sistem dizinlerindeki boş klasörleri tarar.", "risk": "low" },
+            { "id": 13, "name": "Yazıcı İş Kuyruğu", "path": "/var/spool/cups/*", "desc": "Tamamlanmış veya takılmış yazdırma işleri.", "risk": "low" },
+            { "id": 14, "name": "Man Sayfası İndeksleri", "path": "/var/cache/man/*", "desc": "Sistem yardım kılavuzu önbelleği.", "risk": "low" },
+            { "id": 15, "name": "Font Bilgi Önbelleği", "path": "/var/cache/fontconfig/*", "desc": "Sistem genelindeki font haritalarını temizler.", "risk": "low" },
+            { "id": 16, "name": "Sistem Yerelleştirme Dosyaları", "path": "command:localepurge", "desc": "Kullanılmayan dilleri (TR/EN hariç) siler.", "risk": "high" },
+            { "id": 17, "name": "Eski Initramfs Yedekleri", "path": "/boot/initrd.img-*.bak", "desc": "Boot sırasında oluşan eski yedek imajlar.", "risk": "medium" },
+            { "id": 18, "name": "Dbus Servis Logları", "path": "/var/log/dbus.log", "desc": "Sistem mesajlaşma servisi kayıtları.", "risk": "low" },
+            { "id": 19, "name": "Auth Log Arşivleri", "path": "/var/log/auth.log.*", "desc": "Eski giriş ve yetkilendirme kayıtları.", "risk": "low" },
+            { "id": 20, "name": "Udev Donanım Veritabanı", "path": "/var/lib/udev/hwdb.bin", "desc": "Donanım veritabanı önbelleği (Yeniden oluşturulur).", "risk": "medium" },
+            { "id": 21, "name": "Sistem Posta Kuyruğu", "path": "/var/mail/*", "desc": "Sistemden gönderilen yerel rapor postaları.", "risk": "low" },
+            { "id": 22, "name": "Kullanılmayan Paket Konfigürasyonları", "path": "command:dpkg -l | grep '^rc'", "desc": "Kaldırılmış paketlerden kalan ayar dosyaları.", "risk": "medium" },
+            { "id": 23, "name": "Samba Geçici Dosyaları", "path": "/var/lib/samba/private/msg.lock/*", "desc": "Ağ paylaşım kilit dosyaları.", "risk": "medium" },
+            { "id": 24, "name": "X11 Display Logları", "path": "/var/log/Xorg.*.log", "desc": "Görüntü sunucusu eski kayıtları.", "risk": "low" },
+            { "id": 25, "name": "Firmware Önbelleği", "path": "/dev/.udev/db/*", "desc": "Aygıt yazılımı çalışma verileri.", "risk": "high" },
+            { "id": 26, "name": "Apt-Key Backup", "path": "/etc/apt/trusted.gpg~", "desc": "Güvenlik anahtarlarının eski yedekleri.", "risk": "low" },
+            { "id": 27, "name": "Sistem Paylaşımlı Bellek", "path": "/dev/shm/*", "desc": "RAM üzerinde tutulan geçici veriler.", "risk": "medium" },
+            { "id": 28, "name": "Eski Boot Logları", "path": "/var/log/boot.log.*", "desc": "Eski açılış süreci kayıtları.", "risk": "low" },
+            { "id": 29, "name": "Sistem Yedek Listeleri", "path": "/var/backups/*.gz", "desc": "Sistem dosyalarının eski paket yedekleri.", "risk": "low" },
+            { "id": 30, "name": "Apt-Get Clean Command", "path": "command:apt-get clean", "desc": "Paket deposunu tamamen boşaltır.", "risk": "low" },
+            { "id": 31, "name": "Grub Yedek Dosyaları", "path": "/boot/grub/grub.cfg.bak", "desc": "Önyükleyici eski yapılandırma yedeği.", "risk": "medium" },
+            { "id": 32, "name": "Quota Veritabanı", "path": "/var/lib/quota/*", "desc": "Disk kotası kayıtları.", "risk": "medium" },
+            { "id": 33, "name": "Systemd Coredumps", "path": "/var/lib/systemd/coredump/*", "desc": "Sistem servis hatalarının dökümleri.", "risk": "low" },
+            { "id": 34, "name": "Nfs-Common Logları", "path": "/var/log/nfs-common.log", "desc": "Ağ dosya sistemi kayıtları.", "risk": "low" },
+            { "id": 35, "name": "Motd Dinamik Dosyaları", "path": "/var/run/motd.dynamic", "desc": "Günün mesajı önbelleği.", "risk": "low" },
+            { "id": 36, "name": "Ufw Güvenlik Duvarı Logları", "path": "/var/log/ufw.log.*", "desc": "Güvenlik duvarı eski kayıtları.", "risk": "low" },
+            { "id": 37, "name": "Cron Zamanlayıcı Logları", "path": "/var/log/cron.log.*", "desc": "Zamanlanmış görev kayıtları.", "risk": "low" },
+            { "id": 38, "name": "Dpkg Durum Yedekleri", "path": "/var/lib/dpkg/status-old", "desc": "Paket durum veritabanı yedeği.", "risk": "medium" },
+            { "id": 39, "name": "Sistem Sembolik Link Hataları", "path": "command:symlinks -rd /", "desc": "Geçersiz sistem kısa yollarını düzeltir/siler.", "risk": "medium" },
+            { "id": 40, "name": "Apt-Get Check", "path": "command:apt-get check", "desc": "Sistem bağımlılık hatalarını tarar.", "risk": "low" },
+            { "id": 41, "name": "AppArmor Önbelleği", "path": "/var/cache/apparmor/*", "desc": "Güvenlik profilleri önbelleği.", "risk": "medium" },
+            { "id": 42, "name": "LVM Metadata Yedekleri", "path": "/etc/lvm/archive/*", "desc": "Disk yapılandırma eski arşivleri.", "risk": "high" },
+            { "id": 43, "name": "Timeshift Logları", "path": "/var/log/timeshift/*", "desc": "Sistem geri yükleme aracı kayıtları.", "risk": "low" },
+            { "id": 44, "name": "Ssh Bilinen Host Yedekleri", "path": "/etc/ssh/ssh_known_hosts.old", "desc": "Eski SSH bağlantı anahtarları.", "risk": "low" },
+            { "id": 45, "name": "Systemd Katalog Önbelleği", "path": "/var/lib/systemd/catalog/database", "desc": "Sistem mesaj kataloğu.", "risk": "medium" },
+            { "id": 46, "name": "Eski Dmesg Kayıtları", "path": "/var/log/dmesg.*", "desc": "Donanım açılış günlükleri.", "risk": "low" },
+            { "id": 47, "name": "Pkg-Config Önbelleği", "path": "/usr/lib/pkgconfig/*.pc", "desc": "Geliştirme kütüphanesi yolları (Dikkatli silinmeli).", "risk": "high" },
+            { "id": 48, "name": "Locales Arşiv Yedekleri", "path": "/usr/lib/locale/locale-archive.tmpl", "desc": "Dil paketleri şablon yedekleri.", "risk": "high" },
+            { "id": 49, "name": "Sistem Kullanıcı Geçmişi", "path": "/var/log/wtmp", "desc": "Sisteme giriş yapan kullanıcıların listesi.", "risk": "medium" },
+            { "id": 50, "name": "Lastlog Kayıtları", "path": "/var/log/lastlog", "desc": "Son başarılı giriş kayıtları.", "risk": "medium" }
+        ]
+    };
+
+    const grid = document.getElementById('main-grid');
+    const statsArea = document.getElementById('stats-area');
+
+    function renderCards() {
+        let lowCount = 0, medCount = 0, highCount = 0;
+
+        database.rules.forEach(item => {
+            if(item.risk === 'low') lowCount++;
+            if(item.risk === 'medium') medCount++;
+            if(item.risk === 'high') highCount++;
+
+            const card = document.createElement('div');
+            card.className = `card risk-${item.risk}`;
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    <span class="risk-tag tag-${item.risk}">${item.risk} risk</span>
+                    <i class="fa-solid ${getIcon(item.risk)}"></i>
+                </div>
+                <h3>${item.name}</h3>
+                <p>${item.desc}</p>
+                <div class="path-container">
+                    ${item.path}
+                </div>
+                <button class="btn-action" onclick="runAction('${item.name}', '${item.risk}')">
+                    <i class="fa-solid fa-broom"></i> Şimdi Temizle
+                </button>
+            `;
+            grid.appendChild(card);
+        });
+
+        statsArea.innerHTML = `
+            <span class="stat-badge">🟢 ${lowCount} Güvenli</span>
+            <span class="stat-badge">🟠 ${medCount} Orta</span>
+            <span class="stat-badge">🔴 ${highCount} Kritik</span>
+        `;
+    }
+
+    function getIcon(risk) {
+        if(risk === 'high') return 'fa-triangle-exclamation';
+        if(risk === 'medium') return 'fa-circle-exclamation';
+        return 'fa-circle-check';
+    }
+
+    function runAction(name, risk) {
+        if(risk === 'high') {
+            if(!confirm(`DİKKAT: ${name} işlemi kritik bir sistem değişikliğidir. Devam etmek istiyor musunuz?`)) return;
+        }
+        alert(`${name} için temizlik komutu gönderildi.\n(Gerçek uygulamada burada sudo yetkisi istenecektir.)`);
+    }
+
+    renderCards();
+</script>
+
+</body>
+</html>
+
