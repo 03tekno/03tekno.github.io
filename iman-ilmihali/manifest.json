@@ -1,0 +1,21 @@
+{
+  "name": "İman İlmihali",
+  "short_name": "İlmihal",
+  "description": "Temel İman İlmihali ve Dini Bilgiler",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4CAF50",
+  "icons": [
+    {
+      "src": "iman.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "iman.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ]
+}
