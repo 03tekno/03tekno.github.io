@@ -2,7 +2,7 @@
   "name": "İman İlmihali",
   "short_name": "İlmihal",
   "description": "Temel İman İlmihali ve Dini Bilgiler",
-  "start_url": "index.html",
+  "start_url": "https://03tekno.github.io/iman-ilmihali/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4CAF50",
