@@ -7,15 +7,15 @@
     <link rel="icon" type="image/png" href="iman.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* iman.png dosyasındaki ana yeşil tonları */
         :root { 
-            --ana: #1a4d4a; 
+            --ana: #1a4d4a; /* Koyu Zümrüt / Kitap Rengi */
             --vurgu: #2a6f6b; 
-            --bg: #f0f4f4; 
+            --bg: #f4ecd8; /* Sepya Arkaplan */
             --kart-bg: #ffffff;
-            --yazi: #2d3436;
-            --beyaz: #ffffff;
-            --golge: rgba(26, 77, 74, 0.15);
+            --yazi: #2c241e;
+            --pozitif: #27ae60;
+            --negatif: #e74c3c;
+            --shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
         
         body { 
@@ -23,185 +23,233 @@
             background: var(--bg); 
             margin: 0; 
             color: var(--yazi);
-            line-height: 1.6;
+            overflow-x: hidden;
         }
 
         header { 
             background: var(--ana); 
-            color: var(--beyaz); 
+            color: #f4ecd8; 
             padding: 25px 20px; 
             text-align: center; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            font-weight: bold; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
 
-        header img { height: 70px; margin-bottom: 10px; border-radius: 8px; }
+        header img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
 
-        .container { 
-            max-width: 1200px; 
-            margin: 30px auto; 
-            padding: 0 20px; 
+        header span {
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        #google_translate_element {
+            text-align: center;
+            padding: 10px;
+            background: rgba(0,0,0,0.03);
+        }
+
+        /* ÇEVİRİ MOBİL DÜZELTMESİ */
+        iframe.goog-te-menu-frame { max-width: 100% !important; left: 0 !important; top: 0 !important; }
+        .goog-te-menu2 { max-width: 100% !important; width: 100% !important; box-sizing: border-box !important; }
+
+        .grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
+            grid-template-columns: repeat(2, 1fr); 
             gap: 20px; 
+            padding: 25px; 
+            padding-bottom: 100px; 
+            max-width: 800px;
+            margin: 0 auto;
         }
 
         .kart { 
             background: var(--kart-bg); 
-            padding: 25px; 
             border-radius: 15px; 
-            text-align: center; 
+            padding: 25px 15px; 
+            text-align: center;
+            box-shadow: var(--shadow); 
             cursor: pointer; 
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.03);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            min-height: 120px;
+            justify-content: center;
         }
 
-        .kart:hover { 
-            transform: translateY(-8px); 
-            box-shadow: 0 10px 20px var(--golge);
-            border-color: var(--vurgu);
+        .kart:active { 
+            transform: scale(0.95); 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Masaüstü için hover efekti */
+        @media (min-width: 768px) {
+            .kart:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            }
         }
 
         .kart i { 
-            font-size: 2.5rem; 
-            color: var(--ana); 
-            margin-bottom: 12px;
+            font-size: 28px; 
+            color: var(--vurgu); 
+            margin-bottom: 12px; 
+            display: block; 
         }
 
         .kart span { 
+            font-size: 15px; 
             font-weight: 600; 
-            font-size: 1rem;
-            color: var(--ana);
+            color: var(--ana); 
+            line-height: 1.3;
         }
 
-        /* Okuyucu Paneli */
+        /* OKUYUCU PANELİ */
         #okuyucu { 
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100%; height: 100%; 
-            background: var(--beyaz); 
             display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: var(--bg); 
             flex-direction: column; 
-            z-index: 1000;
+            z-index: 1000; 
         }
 
         .ust-bar { 
             background: var(--ana); 
-            color: white; 
-            padding: 15px 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
+            color: #f4ecd8; 
+            padding: 15px; 
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
         }
 
-        .icerik-alanı { 
+        #icerik { 
             flex: 1; 
-            padding: 30px; 
+            padding: 30px 25px; 
             overflow-y: auto; 
-            font-size: 1.2rem; 
-            max-width: 900px;
+            white-space: pre-wrap; 
+            font-size: 19px; 
+            line-height: 1.8; 
+            max-width: 800px;
             margin: 0 auto;
-            white-space: pre-wrap;
+            text-align: left;
             color: #333;
         }
 
-        .alt-bar { 
-            background: #f8f9fa; 
-            padding: 15px; 
-            display: flex; 
-            justify-content: center; 
+        /* ALT NAVİGASYON */
+        .alt-nav {
+            background: white;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
             gap: 15px;
-            border-top: 1px solid #eee;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
         }
 
-        .btn { 
-            padding: 10px 25px; 
-            border: none; 
-            border-radius: 25px; 
-            cursor: pointer; 
+        .btn-alt {
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 14px;
             font-weight: bold;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            color: white;
+            transition: transform 0.2s;
         }
 
-        .btn-kapat { background: #555; color: white; }
-        .btn-ses { background: var(--ana); color: white; }
-        .btn-ses.active { background: #c0392b; }
-
-        @media (max-width: 600px) {
-            .container { grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-            .kart { padding: 15px; min-height: 100px; }
-            .kart i { font-size: 2rem; }
-            .kart span { font-size: 0.9rem; }
-        }
+        .btn-alt:active { transform: scale(0.9); }
+        .btn-geri { background: var(--vurgu); }
+        .btn-oku { background: var(--pozitif); }
+        .btn-oku.active { background: var(--negatif); }
     </style>
 </head>
 <body>
 
 <header>
     <img src="iman.png" alt="Logo">
-    <div style="font-size: 1.4rem; font-weight: bold;">İMAN VE AHLAK İLMİHALİ</div>
+    <span>İMAN ve AHLAK İLMİHALİ</span>
 </header>
 
-<div class="container" id="menu"></div>
+<div id="google_translate_element"></div>
+
+<div class="grid" id="menu"></div>
 
 <div id="okuyucu">
     <div class="ust-bar">
-        <h2 id="baslik" style="margin:0; font-size: 1.1rem;"></h2>
-        <button class="btn btn-kapat" onclick="kapatOkuyucu()"><i class="fas fa-times"></i></button>
+        <span id="baslik"></span>
     </div>
-    <div class="icerik-alanı" id="icerik"></div>
-    <div class="alt-bar">
-        <button id="btnSes" class="btn btn-ses" onclick="toggleSes()">
-            <i class="fas fa-volume-up"></i> <span id="btnMetin">Oku</span>
+    <div id="icerik">İçerik yükleniyor...</div>
+    <div class="alt-nav">
+        <button class="btn-alt btn-oku" id="btnSes" onclick="toggleSes()">
+            <i class="fa-solid fa-volume-high"></i>
+            <span id="btnMetin">Oku</span>
+        </button>
+        <button class="btn-alt btn-geri" onclick="kapatOkuyucu()">
+            <i class="fa-solid fa-house"></i> Ana Menü
         </button>
     </div>
 </div>
 
+<script type="text/javascript">
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({pageLanguage: 'tr'}, 'google_translate_element');
+    }
+</script>
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
 <script>
-    // Buradaki isimlerin senin .txt dosyalarınla birebir aynı olması lazım
-    const kitaplar = [
-        "İslam ve İman", "İslamın Şartları", "İmanın Şartları", "Kur'an-ı Kerim", 
-        "Peygamberimiz", "Namaz", "Oruç", "Zekat", "Hac", "Kurban", 
-        "Dua ve Zikir", "Güzel Ahlak", "Farzlar", "Vacipler", "Sünnetler"
+    const dosyalar = [
+        { ad: "İmanın Şartları", ikon: "fa-mosque" },
+        { ad: "İslamın Şartları", ikon: "fa-star-and-crescent" },
+        { ad: "Abdest ve Namaz", ikon: "fa-hands-bubbles" },
+        { ad: "Güzel Ahlak", ikon: "fa-heart" },
+        { ad: "Peygamber Efendimiz", ikon: "fa-book-open" },
+        { ad: "Dualar", ikon: "fa-hands-praying" }
     ];
 
     const menu = document.getElementById('menu');
     const okuyucu = document.getElementById('okuyucu');
     const icerikDiv = document.getElementById('icerik');
     const synth = window.speechSynthesis;
-    let utterance;
+    let utterance = null;
 
-    kitaplar.forEach(dosyaAdi => {
+    dosyalar.forEach(dosya => {
         const kart = document.createElement('div');
         kart.className = 'kart';
-        kart.innerHTML = `<i class="fas fa-book"></i><span>${dosyaAdi}</span>`;
+        kart.innerHTML = `
+            <i class="fa-solid ${dosya.ikon}"></i>
+            <span>${dosya.ad}</span>
+        `;
         
         kart.onclick = () => {
+            const dosyaAdi = dosya.ad;
             document.getElementById('baslik').innerText = dosyaAdi;
             icerikDiv.innerText = "Yükleniyor...";
             okuyucu.style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Arka plan kaymasın
             
-            // Dosya yolunu kontrol et (Dosyaların HTML ile aynı klasörde olmalı)
             fetch(`${dosyaAdi}.txt`)
-                .then(res => {
-                    if(!res.ok) throw new Error("Dosya bulunamadı");
-                    return res.text();
-                })
+                .then(res => { if(!res.ok) throw new Error(); return res.text(); })
                 .then(metin => {
                     icerikDiv.innerText = metin;
                     icerikDiv.scrollTop = 0;
                 })
-                .catch(err => {
-                    icerikDiv.innerText = "Hata: '" + dosyaAdi + ".txt' dosyası bulunamadı. Lütfen dosya adının doğru olduğundan emin olun.";
-                });
+                .catch(() => { icerikDiv.innerText = "Hata: Dosya bulunamadı."; });
         };
         menu.appendChild(kart);
     });
@@ -211,14 +259,11 @@
             synth.cancel();
             resetSesButonu();
         } else {
-            const metin = icerikDiv.innerText;
-            if(metin.length < 5) return;
-            
+            const metin = document.getElementById('icerik').innerText;
             utterance = new SpeechSynthesisUtterance(metin);
             utterance.lang = 'tr-TR';
-            utterance.onend = resetSesButonu;
+            utterance.onend = () => { resetSesButonu(); };
             synth.speak(utterance);
-            
             document.getElementById('btnMetin').innerText = "Durdur";
             document.getElementById('btnSes').classList.add('active');
         }
@@ -231,8 +276,7 @@
 
     function kapatOkuyucu() {
         synth.cancel();
-        okuyucu.style.display = 'none';
-        document.body.style.overflow = 'auto';
+        document.getElementById('okuyucu').style.display = 'none';
         resetSesButonu();
     }
 </script>
