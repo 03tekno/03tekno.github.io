@@ -135,7 +135,7 @@
 
         .btn-geri { background: var(--vurgu); }
         .btn-oku { background: var(--pozitif); }
-        .btn-oku.active { background: var(--duraklat); } /* Duraklatma rengi */
+        .btn-oku.active { background: var(--duraklat); }
         .btn-durdur { background: var(--negatif); }
 
     </style>
@@ -195,6 +195,7 @@ function googleTranslateElementInit() {
     const menu = document.getElementById('menu');
     let synth = window.speechSynthesis;
     let utterance = null;
+    let okumaDurumu = 'durdu'; // 'durdu', 'okuyor', 'duraklatildi'
 
     dosyalar.forEach(dosyaAdi => {
         const kart = document.createElement('div');
@@ -221,32 +222,37 @@ function googleTranslateElementInit() {
     });
 
     function toggleSes() {
-        // Eğer şu an bir şeyler okunuyorsa (veya duraklatılmışsa)
-        if (synth.speaking) {
-            if (synth.paused) {
-                // Duraklatılmışsa devam et
-                synth.resume();
-                document.getElementById('btnMetin').innerText = "Duraklat";
-                document.getElementById('ikonSes').className = "fa-solid fa-pause";
-                document.getElementById('btnSes').classList.add('active');
-            } else {
-                // Okunuyorsa duraklat
-                synth.pause();
-                document.getElementById('btnMetin').innerText = "Devam Et";
-                document.getElementById('ikonSes').className = "fa-solid fa-play";
-                document.getElementById('btnSes').classList.remove('active');
-            }
+        if (okumaDurumu === 'okuyor') {
+            // Eğer şu an okunuyorsa -> Duraklat
+            synth.pause();
+            okumaDurumu = 'duraklatildi';
+            document.getElementById('btnMetin').innerText = "Devam Et";
+            document.getElementById('ikonSes').className = "fa-solid fa-play";
+            document.getElementById('btnSes').classList.remove('active');
+            
+        } else if (okumaDurumu === 'duraklatildi') {
+            // Eğer duraklatılmışsa -> Kaldığı yerden devam et
+            synth.resume();
+            okumaDurumu = 'okuyor';
+            document.getElementById('btnMetin').innerText = "Duraklat";
+            document.getElementById('ikonSes').className = "fa-solid fa-pause";
+            document.getElementById('btnSes').classList.add('active');
+            
         } else {
-            // Hiç okuma başlamamışsa yeni okuma başlat
+            // Hiç başlamadıysa (durdu durumunda) -> Baştan başlat
+            synth.cancel(); // Ne olur ne olmaz önceki kuyruğu tamamen temizle
+            
             const metin = document.getElementById('icerik').innerText;
             utterance = new SpeechSynthesisUtterance(metin);
             utterance.lang = 'tr-TR';
             
+            // Okuma bittiğinde veya hata verdiğinde butonları eski haline döndür
             utterance.onend = () => { resetSesButonu(); };
+            utterance.onerror = () => { resetSesButonu(); };
 
             synth.speak(utterance);
             
-            // Arayüzü güncelle (Okunuyor durumu)
+            okumaDurumu = 'okuyor';
             document.getElementById('btnMetin').innerText = "Duraklat";
             document.getElementById('ikonSes').className = "fa-solid fa-pause";
             document.getElementById('btnSes').classList.add('active');
@@ -260,6 +266,7 @@ function googleTranslateElementInit() {
     }
 
     function resetSesButonu() {
+        okumaDurumu = 'durdu'; // Durumu sıfırla
         document.getElementById('btnMetin').innerText = "Oku";
         document.getElementById('ikonSes').className = "fa-solid fa-volume-high";
         document.getElementById('btnSes').classList.remove('active');
@@ -267,9 +274,8 @@ function googleTranslateElementInit() {
     }
 
     function kapatOkuyucu() {
-        synth.cancel(); // Ana menüye dönünce sesi kes
+        durdurSes(); // Ana menüye dönerken temiz bir şekilde sesi kes
         document.getElementById('okuyucu').style.display = 'none';
-        resetSesButonu();
     }
 </script>
 
