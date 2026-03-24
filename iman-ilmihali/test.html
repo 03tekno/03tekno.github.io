@@ -7,20 +7,19 @@
     <link rel="icon" type="image/png" href="iman.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Modern Renk Paleti (iman.png tonları baz alınmıştır) */
+        /* iman.png dosyasındaki ana yeşil tonları */
         :root { 
-            --ana: #1a4d4a; /* Koyu Zümrüt / Kitap Rengi */
+            --ana: #1a4d4a; 
             --vurgu: #2a6f6b; 
-            --bg: #f8f9fa; 
+            --bg: #f0f4f4; 
             --kart-bg: #ffffff;
             --yazi: #2d3436;
-            --alt-yazi: #636e72;
             --beyaz: #ffffff;
-            --golge: rgba(0, 0, 0, 0.1);
+            --golge: rgba(26, 77, 74, 0.15);
         }
         
         body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background: var(--bg); 
             margin: 0; 
             color: var(--yazi);
@@ -30,68 +29,57 @@
         header { 
             background: var(--ana); 
             color: var(--beyaz); 
-            padding: 30px 20px; 
+            padding: 25px 20px; 
             text-align: center; 
-            box-shadow: 0 4px 12px var(--golge);
-            border-bottom: 4px solid var(--vurgu);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
+        header img { height: 70px; margin-bottom: 10px; border-radius: 8px; }
 
-        /* Kart Konteyneri */
         .container { 
             max-width: 1200px; 
-            margin: 40px auto; 
+            margin: 30px auto; 
             padding: 0 20px; 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-            gap: 25px; 
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
+            gap: 20px; 
         }
 
-        /* Kitap Kartları */
         .kart { 
             background: var(--kart-bg); 
-            padding: 30px 20px; 
-            border-radius: 16px; 
+            padding: 25px; 
+            border-radius: 15px; 
             text-align: center; 
             cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 6px var(--golge);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             border: 1px solid rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
+            justify-content: center;
             align-items: center;
+            min-height: 120px;
         }
 
         .kart:hover { 
-            transform: translateY(-10px); 
-            box-shadow: 0 12px 20px rgba(26, 77, 74, 0.15);
+            transform: translateY(-8px); 
+            box-shadow: 0 10px 20px var(--golge);
             border-color: var(--vurgu);
         }
 
         .kart i { 
-            font-size: 3rem; 
-            color: var(--ana); /* Kitap ikonu rengi */
-            margin-bottom: 15px;
-            transition: transform 0.3s ease;
-        }
-
-        .kart:hover i {
-            transform: scale(1.1);
+            font-size: 2.5rem; 
+            color: var(--ana); 
+            margin-bottom: 12px;
         }
 
         .kart span { 
             font-weight: 600; 
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--ana);
         }
 
-        /* Tam Ekran Okuyucu */
+        /* Okuyucu Paneli */
         #okuyucu { 
             position: fixed; 
             top: 0; left: 0; 
@@ -100,86 +88,72 @@
             display: none; 
             flex-direction: column; 
             z-index: 1000;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .ust-bar { 
             background: var(--ana); 
             color: white; 
-            padding: 20px; 
+            padding: 15px 20px; 
             display: flex; 
             justify-content: space-between; 
             align-items: center;
-            box-shadow: 0 2px 10px var(--golge);
         }
-
-        .ust-bar h2 { margin: 0; font-size: 1.2rem; }
 
         .icerik-alanı { 
             flex: 1; 
-            padding: 40px 20px; 
+            padding: 30px; 
             overflow-y: auto; 
             font-size: 1.2rem; 
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
-            color: #333;
             white-space: pre-wrap;
-            text-align: justify;
+            color: #333;
         }
 
-        /* Alt Kontrol Barı */
         .alt-bar { 
-            background: #f1f2f6; 
-            padding: 20px; 
+            background: #f8f9fa; 
+            padding: 15px; 
             display: flex; 
             justify-content: center; 
-            gap: 20px;
-            border-top: 1px solid #ddd;
+            gap: 15px;
+            border-top: 1px solid #eee;
         }
 
         .btn { 
-            padding: 12px 25px; 
+            padding: 10px 25px; 
             border: none; 
-            border-radius: 30px; 
+            border-radius: 25px; 
             cursor: pointer; 
-            font-weight: bold; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px;
-            transition: 0.2s;
-            font-family: inherit;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .btn-kapat { background: #636e72; color: white; }
-        .btn-ses { background: var(--ana); color: white; min-width: 120px; justify-content: center; }
-        .btn-ses.active { background: #d63031; }
-        
-        .btn:active { transform: scale(0.95); }
+        .btn-kapat { background: #555; color: white; }
+        .btn-ses { background: var(--ana); color: white; }
+        .btn-ses.active { background: #c0392b; }
 
-        /* Responsive */
         @media (max-width: 600px) {
-            .container { grid-template-columns: 1fr; }
-            .icerik-alanı { font-size: 1.1rem; padding: 20px; }
+            .container { grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
+            .kart { padding: 15px; min-height: 100px; }
+            .kart i { font-size: 2rem; }
+            .kart span { font-size: 0.9rem; }
         }
     </style>
 </head>
 <body>
 
 <header>
-    <img src="iman.png" alt="Logo" style="height: 60px; margin-bottom: 10px;">
-    <h1>İMAN VE AHLAK İLMİHALİ</h1>
+    <img src="iman.png" alt="Logo">
+    <div style="font-size: 1.4rem; font-weight: bold;">İMAN VE AHLAK İLMİHALİ</div>
 </header>
 
 <div class="container" id="menu"></div>
 
 <div id="okuyucu">
     <div class="ust-bar">
-        <h2 id="baslik"></h2>
+        <h2 id="baslik" style="margin:0; font-size: 1.1rem;"></h2>
         <button class="btn btn-kapat" onclick="kapatOkuyucu()"><i class="fas fa-times"></i></button>
     </div>
     <div class="icerik-alanı" id="icerik"></div>
@@ -191,6 +165,7 @@
 </div>
 
 <script>
+    // Buradaki isimlerin senin .txt dosyalarınla birebir aynı olması lazım
     const kitaplar = [
         "İslam ve İman", "İslamın Şartları", "İmanın Şartları", "Kur'an-ı Kerim", 
         "Peygamberimiz", "Namaz", "Oruç", "Zekat", "Hac", "Kurban", 
@@ -206,22 +181,27 @@
     kitaplar.forEach(dosyaAdi => {
         const kart = document.createElement('div');
         kart.className = 'kart';
-        kart.innerHTML = `
-            <i class="fas fa-book-open"></i>
-            <span>${dosyaAdi}</span>
-        `;
+        kart.innerHTML = `<i class="fas fa-book"></i><span>${dosyaAdi}</span>`;
+        
         kart.onclick = () => {
             document.getElementById('baslik').innerText = dosyaAdi;
             icerikDiv.innerText = "Yükleniyor...";
             okuyucu.style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Arka plan kaymasın
             
+            // Dosya yolunu kontrol et (Dosyaların HTML ile aynı klasörde olmalı)
             fetch(`${dosyaAdi}.txt`)
-                .then(res => { if(!res.ok) throw new Error(); return res.text(); })
+                .then(res => {
+                    if(!res.ok) throw new Error("Dosya bulunamadı");
+                    return res.text();
+                })
                 .then(metin => {
                     icerikDiv.innerText = metin;
                     icerikDiv.scrollTop = 0;
                 })
-                .catch(() => { icerikDiv.innerText = "Hata: Dosya bulunamadı."; });
+                .catch(err => {
+                    icerikDiv.innerText = "Hata: '" + dosyaAdi + ".txt' dosyası bulunamadı. Lütfen dosya adının doğru olduğundan emin olun.";
+                });
         };
         menu.appendChild(kart);
     });
@@ -231,13 +211,14 @@
             synth.cancel();
             resetSesButonu();
         } else {
-            const metin = document.getElementById('icerik').innerText;
+            const metin = icerikDiv.innerText;
+            if(metin.length < 5) return;
+            
             utterance = new SpeechSynthesisUtterance(metin);
             utterance.lang = 'tr-TR';
-            
-            utterance.onend = () => { resetSesButonu(); };
-
+            utterance.onend = resetSesButonu;
             synth.speak(utterance);
+            
             document.getElementById('btnMetin').innerText = "Durdur";
             document.getElementById('btnSes').classList.add('active');
         }
@@ -251,6 +232,7 @@
     function kapatOkuyucu() {
         synth.cancel();
         okuyucu.style.display = 'none';
+        document.body.style.overflow = 'auto';
         resetSesButonu();
     }
 </script>
