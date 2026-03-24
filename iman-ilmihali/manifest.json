@@ -1,20 +1,20 @@
 {
   "name": "İman İlmihali",
   "short_name": "İlmihal",
-  "description": "Temel İman İlmihali ve Dini Bilgiler",
-  "start_url": "https://03tekno.github.io/iman-ilmihali/index.html",
+  "description": "Temel İman İlmihali",
+  "start_url": "/iman-ilmihali/index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#4CAF50",
+  "background_color": "#f4f4f9",
+  "theme_color": "#2E7D32",
   "icons": [
     {
       "src": "iman.png",
-      "sizes": "256x256",
+      "sizes": "192x192",
       "type": "image/png"
     },
     {
       "src": "iman.png",
-      "sizes": "256x256",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]
